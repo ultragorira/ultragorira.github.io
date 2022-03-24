@@ -105,7 +105,7 @@ style = load_image('images/gioconda.jpg', shape=content.shape[-2:]).to(device)
 
 ## Content and Style Features, Gram Matrix
 
-````python
+```python
 
 def get_features(image, model, layers=None):
 
@@ -166,6 +166,8 @@ style_weight = 1e6  # beta
 
 ### LET'S ROLL
 
+```python
+
 # iteration hyperparameters
 optimizer = optim.Adam([target], lr=0.003)
 steps = 3000  # decide how many iterations to update your image (5000)
@@ -203,3 +205,6 @@ for ii in range(1, steps+1):
     total_loss.backward()
     optimizer.step()
 ```
+### OUTPUT EXAMPLE
+
+
