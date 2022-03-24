@@ -206,6 +206,6 @@ for ii in range(1, steps+1):
     optimizer.step()
 ```
 ### OUTPUT EXAMPLE WITH MONA LISA
-![Me and MonaLisa](https://github.com/ultragorira/ultragorira.github.io/blob/main/_pics/output.png)
+![Me and MonaLisa](/_pics/output.png)
 
 
