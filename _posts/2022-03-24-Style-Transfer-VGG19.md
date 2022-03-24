@@ -11,7 +11,7 @@ To obtain the target image, the one with content from one image and style from a
 When passing the content image, the image will go through till the deepest conv layer, where a representation of the image will be the output. Next we pass the style image and the network will extract different features from multiple layers that represent the style of that image.
 The output will be the merging of content representation and style representation.
 
-The challenge is to get the target image which can start as a blank canvas or a copy of the input image and need to manipulate the style. For the content representation, in the paper, the output is takem from the conv layer 4_2. The output is then compared to the input image.
+The challenge is to get the target image which can start as a blank canvas or a copy of the input image and need to manipulate the style. For the content representation, in the paper, the output is taken from the conv layer 4_2. The output is then compared to the input image.
 
 We need to calculate a content loss which is the mean square loss between the content representation from image and content representation of the target image.
 This will measure how far apart are the two representation from each other. The aim is to minimize the loss by backpropagation. 
@@ -26,7 +26,7 @@ If we have a 4x4 pic passed through the conv layer with 8 of depth, the matrix w
 
 We basically vectorize (flatten the values).First row in the feature map are the first 4 slot of the vector.
 
-By vectorizing the feature maps we transfor a 3D conv layer into a 2D matrix of values Next we need to multiply this matrix by the Transponse of the matrix
+By vectorizing the feature maps we transform a 3D conv layer into a 2D matrix of values. Next we need to multiply this matrix by the Transponse of the matrix
 
 The result will be a 8 by 8 matrix. So for example the value in row 4, column 2, will hold the similarities of the fourth and second feature maps in the layer. 
 Gram matrix is one of the mostly used in practice when doing style. 
@@ -53,4 +53,52 @@ import numpy as np
 import torch
 import torch.optim as optim
 from torchvision import transforms, models
+```
+
+## Loading VGG19 
+
+```python
+vgg = models.vgg19(pretrained=True).features
+
+# freeze all VGG parameters
+for param in vgg.parameters():
+    param.requires_grad_(False)
+    
+# Moving to GPU if available
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+vgg.to(device)
+```
+
+##Content and Style Images Loading
+
+```python
+def load_image(img_path, max_size=400, shape=None):
+    
+    image = Image.open(img_path).convert('RGB')
+    
+    # large images will slow down processing
+    if max(image.size) > max_size:
+        size = max_size
+    else:
+        size = max(image.size)
+    
+    if shape is not None:
+        size = shape
+        
+    in_transform = transforms.Compose([
+                        transforms.Resize(size),
+                        transforms.ToTensor(),
+                        transforms.Normalize((0.485, 0.456, 0.406), 
+                                             (0.229, 0.224, 0.225))])
+
+    # discard the transparent, alpha channel (that's the :3) and add the batch dimension
+    image = in_transform(image)[:3,:,:].unsqueeze(0)
+    
+    return image
+
+# load in content and style image
+content = load_image('images/IMG-20190704-WA0009.jpg').to(device)
+# Resize style to match content
+style = load_image('images/gioconda.jpg', shape=content.shape[-2:]).to(device)
+
 ```
