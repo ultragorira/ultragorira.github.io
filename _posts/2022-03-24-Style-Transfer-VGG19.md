@@ -1,6 +1,6 @@
 # Style Transfer with VGG19
 
-```
+```python
 # import resources
 %matplotlib inline
 
