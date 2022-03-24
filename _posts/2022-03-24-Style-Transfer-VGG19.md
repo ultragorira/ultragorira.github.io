@@ -69,7 +69,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 vgg.to(device)
 ```
 
-##Content and Style Images Loading
+## Content and Style Images Loading
 
 ```python
 def load_image(img_path, max_size=400, shape=None):
@@ -101,4 +101,105 @@ content = load_image('images/IMG-20190704-WA0009.jpg').to(device)
 # Resize style to match content
 style = load_image('images/gioconda.jpg', shape=content.shape[-2:]).to(device)
 
+```
+
+## Content and Style Features, Gram Matrix
+
+````python
+
+def get_features(image, model, layers=None):
+
+    if layers is None:
+        layers = {'0': 'conv1_1', '5':'conv2_1', '10':'conv3_1', '19': 'conv4_1',
+                  '21': 'conv4_2', #content representation
+                  '28': 'conv5_1'}
+                  
+    features = {}
+    x = image
+    for name, layer in model._modules.items():
+        x = layer(x)
+        if name in layers:
+            features[layers[name]] = x
+            
+    return features
+
+def gram_matrix(tensor):
+    """ Calculate the Gram Matrix of a given tensor 
+        Gram Matrix: https://en.wikipedia.org/wiki/Gramian_matrix
+    """
+    
+    batch_size, d, h, w = tensor.size()
+    tensor = tensor.view(d, h*w)  #Multiply features for each channel
+    gram = torch.mm(tensor, tensor.t())
+        
+    
+    return gram 
+    
+```
+
+## Extracting Features and Gram Matrices calculation
+
+```python
+
+content_features = get_features(content, vgg)
+style_features = get_features(style, vgg)
+
+# calculate the gram matrices for each layer of our style representation
+style_grams = {layer: gram_matrix(style_features[layer]) for layer in style_features}
+
+# create a third "target" image and prep it for change
+# it is a good idea to start of with the target as a copy of our *content* image
+# then iteratively change its style
+target = content.clone().requires_grad_(True).to(device)
+
+#Excluding conv4_2
+style_weights = {'conv1_1': 1.,
+                 'conv2_1': 0.7,
+                 'conv3_1': 0.5,
+                 'conv4_1': 0.3,
+                 'conv5_1': 0.2}
+
+content_weight = 1  # alpha
+style_weight = 1e6  # beta
+
+```
+
+### LET'S ROLL
+
+# iteration hyperparameters
+optimizer = optim.Adam([target], lr=0.003)
+steps = 3000  # decide how many iterations to update your image (5000)
+
+for ii in range(1, steps+1):
+    
+    target_features = get_features(target, vgg)
+    content_loss = torch.mean((target_features['conv4_2'] - content_features['conv4_2'])**2)
+    
+    # the style loss
+    # initialize the style loss to 0
+    style_loss = 0
+    # iterate through each style layer and add to the style loss
+    for layer in style_weights:
+        # get the "target" style representation for the layer
+        target_feature = target_features[layer]
+        _, d, h, w = target_feature.shape
+        
+        target_gram = gram_matrix(target_feature)
+        
+        ## get the "style" style representation
+        style_gram = style_grams[layer]
+        ## Calculate the style loss for one layer, weighted appropriately
+        layer_style_loss = style_weights[layer] * torch.mean((target_gram - style_gram)**2)
+        
+        # add to the style loss
+        style_loss += layer_style_loss / (d * h * w) #normalizes our layer style loss
+        
+        
+    ## calculate the *total* loss
+    total_loss = (style_loss * style_weight) + (content_loss * content_weight)
+    
+    # update your target image
+    optimizer.zero_grad()
+    total_loss.backward()
+    optimizer.step()
 ```
