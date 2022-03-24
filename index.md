@@ -1,4 +1,4 @@
-Hello :wave:
+Hello!
 
 Thank you for stopping by!
 
