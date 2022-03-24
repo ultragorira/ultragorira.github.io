@@ -205,6 +205,7 @@ for ii in range(1, steps+1):
     total_loss.backward()
     optimizer.step()
 ```
-### OUTPUT EXAMPLE
+### OUTPUT EXAMPLE WITH MONA LISA
+![Me and MonaLisa](https://github.com/ultragorira/ultragorira.github.io/blob/main/_pics/output.png)
 
 
