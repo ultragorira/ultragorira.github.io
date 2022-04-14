@@ -96,7 +96,7 @@ So to recap:
 
 Deep Convolutional Generative Adversarial Networks is made by a generator and discriminator. 
 
-[DXGAN original paper](https://arxiv.org/pdf/1511.06434.pdf)
+[DCGAN original paper](https://arxiv.org/pdf/1511.06434.pdf)
 
 The Discriminator is a convolutional neural network which has at the end a fully connect layer that will categorize 1 for real 0 for fake. 
 
