@@ -8,7 +8,7 @@ Dataset of original CelebA was taken from [Kaggle](https://www.kaggle.com/datase
 Generative Advesarial Networks, generally abbreviated as GANs, are neural networks that can create entirely new images that do not exist. 
 GANs are used to generate realistic data, mostly used for images. Example of GANs are Pix2Pix where you can draft a sketch and the model is able to output a realistic image based on it. CycleGAN is a model that is good at image to image translation. As shown in the example below, the horse turned into a "zebra" but also the surrouding was changed, more "African" style. 
 
-![CYCLE GAN](/images/CycleGAN.png)
+![CYCLE GAN](/images/CycleGAN.PNG)
 
 ## How GANs work
 
@@ -99,8 +99,6 @@ Deep Convolutional Generative Adversarial Networks is made by a generator and di
 [DXGAN original paper](https://arxiv.org/pdf/1511.06434.pdf)
 
 The Discriminator is a convolutional neural network which has at the end a fully connect layer that will categorize 1 for real 0 for fake. 
-
-<img src='pics/DCGAN_Discriminator.png'>
 
 ***No maxpooling layers!***
 
