@@ -1,6 +1,6 @@
 # DCGAN - GENERATE FACES
 
-This post is an implementation of [DCGAN](https://arxiv.org/abs/1511.06434) and try to generate new Faces.
+This post is an implementation of [DCGAN](https://arxiv.org/abs/1511.06434) and an attempt to generate new Faces.
 Dataset of original CelebA was taken from [Kaggle](https://www.kaggle.com/datasets/jessicali9530/celeba-dataset).
 
 ## What is GAN? 
