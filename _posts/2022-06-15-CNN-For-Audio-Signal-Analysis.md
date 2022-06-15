@@ -533,6 +533,7 @@ plt.figure(figsize=(30,10))
 plt.show()
 ```
 ![Capuchin Bird_89](/images/Capuchin_Bird_89.png)
+
 File 89 was identified correctly although based on the waveform looks like there would be more calls than just 5. Some calls are very low but still identified by the model.
 For audios with high density calls the model does not perform perfectly. Probably having more balanced data and/or changing a bit the model architecture could help identify better. Maybe even having a different window would be beneficial, above was used 54000. 
 
