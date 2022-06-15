@@ -195,10 +195,15 @@ print('Training batch size', len(train_data))
 print('Validation batch size', len(val_data))
 print('Test batch size', len(test_data))
 ```
+
 Training batch size 35 
+
 Validation batch size 5
+
 Test batch size 10
+
 Each batch will have 16 samples.
+
 
 Let's take a look at the shape of the samples.
 
@@ -313,7 +318,7 @@ plt.show()
 
 ![Capuchin Bird_Recall](/images/Capuchin_Precision.png)
 
-### Testing again Test Data
+### Testing against Test Dataset
 
 ```python
 test_audio = []
