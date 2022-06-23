@@ -169,5 +169,5 @@ np_where_method(df)
 
 Looks like np.where is the fastest method to do such data manipulation. For sure iterrows is to avoid :D 
 
-
+[Full Kernel](https://github.com/ultragorira/AI_and_ML/blob/master/Approach_Almost_Any_ML_Problem/Pandas_Comparisons.ipynb)
 
