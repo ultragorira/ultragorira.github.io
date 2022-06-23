@@ -42,8 +42,8 @@ Let's create the function to calculated the BMI
 
 ```python
 def calculate_BMI(row):
-  bmi_calculation = row["weight_kg"]/(row["height_cm"]*row["height_cm"])
-  return bmi_calculation*10_000
+  bmi_calculation = row["weight_kg"]/((row["height_cm"]**2)/10000)
+  return bmi_calculation
 ```
 
 And below the three different functions to invoke the function ***calculate_BMI***
@@ -67,7 +67,7 @@ def apply_method(df):
 With numpy and where method we are able to do some action based on some conditions.
 ```python
 def np_where_method(df):
-  df["BMI"] = np.where(df["weight_kg"]>0, (df["weight_kg"]/(df["height_cm"]*df["height_cm"]))*10_000, 0)
+  df["BMI"] = np.where(df["weight_kg"]>0, df["weight_kg"]/((df["height_cm"]**2)/10000), 0)
   return df
 ```
 
