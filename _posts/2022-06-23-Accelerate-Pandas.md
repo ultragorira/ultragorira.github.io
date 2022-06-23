@@ -110,7 +110,7 @@ apply_method(df)
 
 Now this is faster. But can we do better?
 
-### NP.Where at 100k
+### np.where at 100k
 
 ```python
 df = create_dataset(100_000)
@@ -158,7 +158,6 @@ That's a huge difference now.
 
 ### np.where
 
-### Apply 
 ```python
 df = create_dataset(500_000)
 
