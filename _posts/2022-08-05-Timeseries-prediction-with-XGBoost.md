@@ -51,7 +51,7 @@ df.head()
 
 ```
 
-![df_head](images/df_head_xgboost.png)
+![df_head](images/df_head_xgboost.PNG)
 
 ```python
 
@@ -59,7 +59,7 @@ df.tail()
 
 ```
 
-![df_tail](images/df_tail_xgboost.png)
+![df_tail](images/df_tail_xgboost.PNG)
 
 The data dates back from December 1980 till yesterday (time of this post).
 
@@ -75,7 +75,7 @@ ax.tick_params(axis='x', rotation=90)
 
 ```
 
-![plot](images/apple_plot.png)
+![plot](images/apple_plot.PNG)
 
 When working with timeseries, you want to split the data between training and test. Normally from the data obtained, we decide a cut-off date, from where the test data will be taken. Data prior to that date will be the train data.
 Let's do that:
@@ -94,7 +94,183 @@ plt.show()
 
 ```
 
-![Data_split](images/xgboost_data_split.png)
+![Data_split](images/xgboost_data_split.PNG)
 
 The blue line is the train data and the orange one is the test data. 
+
+###  Creating features
+
+The dataset has quite good features such as High, Low, Open and Volume but we can create more features by utilizing the Date and get additional data such as day of the week, index of the monnth etc.
+
+```python
+
+def create_features(df):
+    df.copy()
+    df['dayofweek'] = df.index.dayofweek
+    df['month'] = df.index.month
+    df['year'] = df.index.year
+    df['dayofyear'] = df.index.dayofyear
+    return df
+
+FEATURES = ['Open', 'High', 'Low', 'Volume', 'dayofweek', 'month', 'year', 'dayofyear']
+TARGET = ['Close']
+train = create_features(train_data)
+test = create_features(test_data)
+X_train = train[FEATURES]
+X_test = test[FEATURES]
+y_train = train[TARGET]
+y_test = test[TARGET]
+
+```
+Here we created the features and target (Close). Now to the model.
+
+### Model
+
+```python
+
+model = xgbreg(n_estimators=2000, 
+                learning_rate=0.01,
+                max_depth = 5,
+                max_bin = 8192,
+                predictor = 'gpu_predictor',
+                objective = "reg:squarederror",
+                early_stopping_rounds = 50,
+                tree_method='gpu_hist' 
+                )
+
+```
+
+In this case I have decided to take advantage of the tree_method gpu_hist, so that the model can run on GPU, without setting this up, XGBoost would run on CPU and be slower. 
+When testing out, higher accuracy was achieved when increasing the bin value.
+For this model I then set the early_stopping_rounds to 50. This basically means that the model will stop training if for 50 consecutive runs there is no improvements, this is to avoid overfitting. However, you will see the results later that are quite close to real data, which makes me think if the model overfit anyway.
+
+### Training
+
+```python 
+
+model.fit(X_train, y_train,
+        eval_set=[(X_train, y_train), (X_test, y_test)],
+        verbose=True
+        )
+
+```
+
+The model ran for 1973 rounds instead of 2000 set.  
+Now that the model trained, we can fit the test data and get predictions. 
+Then we can merge the predictions with the dataframe.
+
+```python
+
+#Predict
+test_data['predictions'] = model.predict(X_test)
+#Merge
+df = df.merge(test_data[['predictions']], how='left', left_index=True, right_index=True)
+
+```
+
+Below are the predictions plotted along with the original data. Yellow is the prediction.
+
+```python
+
+ax = df[['Close']].plot(figsize=(15,5))
+df['predictions'].plot(ax=ax, style='.')
+plt.legend(['Ground Truth', 'Predictions'])
+ax.set_title('Predictions')
+plt.show()
+
+```
+
+![Predictions_full](images/predictions_full.png)
+
+It is not so clear since the graph is so small so let's focus only on the test data portion and see how accurate the predictions are.
+
+```python
+
+ax = df.loc[(df.index > data_split) & (df.index < dt.datetime.now())]['Close'] \
+    .plot(figsize=(15, 5), title='Week Of Data')
+df.loc[(df.index >  data_split) & (df.index <  dt.datetime.now())]['predictions'] \
+    .plot(style='-')
+plt.legend(['Ground Data','Prediction'])
+plt.show()
+```
+![Predictions_focus](images/predictions_focus.png)
+
+The yellow line (Predictions of Close) is not exactly overlapping the blue line (actual data) but it kind of follows the trend. These are just predictions and if it was so easy to predict stock prices, anybody would become rich :)
+
+
+### Exploring the predictions
+
+Now that we have the predictions, why not having a look at it and see where the model performed better and worse. 
+
+First we can calculate the difference between actual vs predicted values and get the absolute value, just to see how far off they were. 
+
+```python
+
+df['Absolute_diff'] = df.apply(lambda x: abs(x['Close']- x['predictions']), axis=1)
+
+#Group by month and count how many are having a difference over 1
+df.loc[(df.index > data_split) & (df.Absolute_diff > 1)].groupby(['month'], as_index=False)['Absolute_diff'].count()
+
+```
+
+![Groupby](images/groupby_month_1.PNG)
+
+Looks like March was the worst of the months in terms of predictions. August, as it is still running at the time of this post, we can ignore. 
+What was the best month, having a diff below 1 then?
+
+```python
+
+df.loc[(df.index > data_split) & (df.Absolute_diff < 1)].groupby(['month'], as_index=False)['Absolute_diff'].count()
+
+```
+
+![Groupby2](images/groupby_month_2.PNG)
+
+Seems like June was the one with the highest count (better accuracy).
+Let's have a look at the June data then!
+
+![June](images/June_Predictions.PNG)
+
+You can see that some predictions are very close to the actual Close value. 
+Surely it would be more interesting to see in which occasions the model actual predicted the right trend, if for example the close value went higher or lower accordingly. For example on June 2nd and 3rd the value went lower, so did the predictions.
+
+### FEATURES IMPORTANCE
+
+One important aspect of the trained model is to verify which of the features actually were used by the model when doing the predictions. This can be easily done in few lines of code:
+
+```python
+
+fi = pd.DataFrame(data=model.feature_importances_,
+             index=model.feature_names_in_,
+             columns=['importance'])
+fi.sort_values('importance').plot(kind='barh', title='Feature Importance')
+plt.show()
+
+```
+
+![Features_Importance](images/Features_importances.png)
+
+![Features_Importance2](images/Features_importances_2.png)
+
+Looks like the most relevant features used were Low, High and Open. Volume and the time wise features were not really considered.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
