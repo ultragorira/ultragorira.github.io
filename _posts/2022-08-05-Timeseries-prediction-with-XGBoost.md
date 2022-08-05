@@ -2,7 +2,7 @@
 
 ![XGBoost](/images/XGBoost_logo.png)
 
-XGBoost is undoubtedly one of the most popular algorithm in ML and Kaggle. It is no surprise if one of Kaggle's Grandmasters posted a while back this:
+XGBoost is undoubtedly one of the most popular algorithm in ML and Kaggle. It is no surprise if one of Kaggle's Grandmasters, Bojan Tunguz, posted a while back this:
 
 ![Bojan_Tunguz](/images/Bojan_XGBoost.PNG)
 
