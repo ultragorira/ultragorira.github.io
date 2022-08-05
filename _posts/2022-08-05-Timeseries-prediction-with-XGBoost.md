@@ -4,7 +4,7 @@
 
 XGBoost is undoubtedly one of the most popular algorithm in ML and Kaggle. It is no surprise if one of Kaggle's Grandmasters posted a while back this:
 
-![Bojan_Tunguz](images/Bojan_XGBoost.png)
+![Bojan_Tunguz](/images/Bojan_XGBoost.PNG)
 
 ## What is XGBoost
 
@@ -51,7 +51,7 @@ df.head()
 
 ```
 
-![df_head](images/df_head_xgboost.PNG)
+![df_head](/images/df_head_xgboost.PNG)
 
 ```python
 
@@ -59,7 +59,7 @@ df.tail()
 
 ```
 
-![df_tail](images/df_tail_xgboost.PNG)
+![df_tail](/images/df_tail_xgboost.PNG)
 
 The data dates back from December 1980 till yesterday (time of this post).
 
@@ -75,7 +75,7 @@ ax.tick_params(axis='x', rotation=90)
 
 ```
 
-![plot](images/apple_plot.PNG)
+![plot](/images/apple_plot.PNG)
 
 When working with timeseries, you want to split the data between training and test. Normally from the data obtained, we decide a cut-off date, from where the test data will be taken. Data prior to that date will be the train data.
 Let's do that:
@@ -94,7 +94,7 @@ plt.show()
 
 ```
 
-![Data_split](images/xgboost_data_split.PNG)
+![Data_split](/images/xgboost_data_split.PNG)
 
 The blue line is the train data and the orange one is the test data. 
 
@@ -180,7 +180,7 @@ plt.show()
 
 ```
 
-![Predictions_full](images/predictions_full.png)
+![Predictions_full](/images/predictions_full.png)
 
 It is not so clear since the graph is so small so let's focus only on the test data portion and see how accurate the predictions are.
 
@@ -193,7 +193,7 @@ df.loc[(df.index >  data_split) & (df.index <  dt.datetime.now())]['predictions'
 plt.legend(['Ground Data','Prediction'])
 plt.show()
 ```
-![Predictions_focus](images/predictions_focus.png)
+![Predictions_focus](/images/predictions_focus.png)
 
 The yellow line (Predictions of Close) is not exactly overlapping the blue line (actual data) but it kind of follows the trend. These are just predictions and if it was so easy to predict stock prices, anybody would become rich :)
 
@@ -213,7 +213,7 @@ df.loc[(df.index > data_split) & (df.Absolute_diff > 1)].groupby(['month'], as_i
 
 ```
 
-![Groupby](images/groupby_month_1.PNG)
+![Groupby](/images/groupby_month_1.PNG)
 
 Looks like March was the worst of the months in terms of predictions. August, as it is still running at the time of this post, we can ignore. 
 What was the best month, having a diff below 1 then?
@@ -224,12 +224,12 @@ df.loc[(df.index > data_split) & (df.Absolute_diff < 1)].groupby(['month'], as_i
 
 ```
 
-![Groupby2](images/groupby_month_2.PNG)
+![Groupby2](/images/groupby_month_2.PNG)
 
 Seems like June was the one with the highest count (better accuracy).
 Let's have a look at the June data then!
 
-![June](images/June_Predictions.PNG)
+![June](/images/June_Predictions.PNG)
 
 You can see that some predictions are very close to the actual Close value. 
 Surely it would be more interesting to see in which occasions the model actual predicted the right trend, if for example the close value went higher or lower accordingly. For example on June 2nd and 3rd the value went lower, so did the predictions.
@@ -248,9 +248,9 @@ plt.show()
 
 ```
 
-![Features_Importance](images/Features_importances.png)
+![Features_Importance](/images/Features_importances.png)
 
-![Features_Importance2](images/Features_importances_2.png)
+![Features_Importance2](/images/Features_importances_2.png)
 
 Looks like the most relevant features used were Low, High and Open. Volume and the time wise features were not really considered.
 
