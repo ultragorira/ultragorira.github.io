@@ -16,7 +16,7 @@ XGBoost can be used for many cases, from regression to classification problems.
 
 In this post I will use XGBoost for predicting the Close value of the Apple stock by using historical data. I will then predict a number for each day of the test data. This will be then a regression problem. 
 
-## XGBOOST IMPLEMENTATION
+## XGBOOST FOR REGRESSION
 
 We will import some libraries such as pandas for data manipulation, pandas_datareader to grab the live data for the Apple stock, visualization libs like matplotlib and seaborn and finally from the XGBoost lib, we will import the XGBRegressor. 
 
@@ -100,7 +100,7 @@ The blue line is the train data and the orange one is the test data.
 
 ###  Creating features
 
-The dataset has quite good features such as High, Low, Open and Volume but we can create more features by utilizing the Date and get additional data such as day of the week, index of the monnth etc.
+The dataset has quite good features such as High, Low, Open and Volume but we can create more features by utilizing the Date and get additional features such as day of the week, index of the month etc.
 
 ```python
 
@@ -116,13 +116,12 @@ FEATURES = ['Open', 'High', 'Low', 'Volume', 'dayofweek', 'month', 'year', 'dayo
 TARGET = ['Close']
 train = create_features(train_data)
 test = create_features(test_data)
-X_train = train[FEATURES]
-X_test = test[FEATURES]
-y_train = train[TARGET]
-y_test = test[TARGET]
+X_train, y_train = train[FEATURES], train[TARGET]
+X_test, y_test = test[FEATURES], test[TARGET]
 
 ```
-Here we created the features and target (Close). Now to the model.
+Here we created the features and target (Close). Then we created for both train and test data the X (Features) and Y(Target).
+Now to the model.
 
 ### Model
 
@@ -140,9 +139,9 @@ model = xgbreg(n_estimators=2000,
 
 ```
 
-In this case I have decided to take advantage of the tree_method gpu_hist, so that the model can run on GPU, without setting this up, XGBoost would run on CPU and be slower. 
+In this case I have decided to take advantage of the tree_method gpu_hist, so that the model can run on GPU. Without setting this up, XGBoost would run on CPU and be slower when training.  
 When testing out, higher accuracy was achieved when increasing the bin value.
-For this model I then set the early_stopping_rounds to 50. This basically means that the model will stop training if for 50 consecutive runs there is no improvements, this is to avoid overfitting. However, you will see the results later that are quite close to real data, which makes me think if the model overfit anyway.
+For this model I then set the early_stopping_rounds to 50. This basically means that the model will stop training if for 50 consecutive runs there is no improvements with the objective (squared error), this is to avoid overfitting. However, you will see the results later that are quite close to real data, which makes me think if the model overfit anyway...
 
 ### Training
 
@@ -155,7 +154,7 @@ model.fit(X_train, y_train,
 
 ```
 
-The model ran for 1973 rounds instead of 2000 set.  
+The model ran for 1973 rounds instead of 2000 set. This is thanks to the early stopping feature.  
 Now that the model trained, we can fit the test data and get predictions. 
 Then we can merge the predictions with the dataframe.
 
@@ -200,7 +199,7 @@ The yellow line (Predictions of Close) is not exactly overlapping the blue line 
 
 ### Exploring the predictions
 
-Now that we have the predictions, why not having a look at it and see where the model performed better and worse. 
+Now that we have the predictions, why not having a look at them and see where the model performed better and worse. 
 
 First we can calculate the difference between actual vs predicted values and get the absolute value, just to see how far off they were. 
 
@@ -236,7 +235,7 @@ Surely it would be more interesting to see in which occasions the model actual p
 
 ### FEATURES IMPORTANCE
 
-One important aspect of the trained model is to verify which of the features actually were used by the model when doing the predictions. This can be easily done in few lines of code:
+One important aspect of the trained model is to verify which of the features actually were used by the model when training. This can be easily done in few lines of code:
 
 ```python
 
