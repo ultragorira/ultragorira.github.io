@@ -75,7 +75,7 @@ ax.tick_params(axis='x', rotation=90)
 
 ```
 
-![plot](/images/apple_plot.PNG)
+![plot](/images/apple_plot.png)
 
 When working with timeseries, you want to split the data between training and test. Normally from the data obtained, we decide a cut-off date, from where the test data will be taken. Data prior to that date will be the train data.
 Let's do that:
@@ -94,7 +94,7 @@ plt.show()
 
 ```
 
-![Data_split](/images/xgboost_data_split.PNG)
+![Data_split](/images/xgboost_data_split.png)
 
 The blue line is the train data and the orange one is the test data. 
 
