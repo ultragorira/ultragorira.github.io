@@ -20,12 +20,12 @@ What this basically means is that:
 - A Neural Network is then tasked to remove this noise (Reverse Diffusion Process)
 
 **Forward Diffusion Process**
-![Forward_Process](/images/Forward_Process.png)
+![Forward_Process](/images/Forward_Process.PNG)
 
 The noise amount applied is not always the same at each timestep. This is regulated by a schedule.There is linear schedule (more aggressive) and cosine schedule (less aggressive) which seems to be a better choice in retaining information and avoid having uninformative data at the end.
 
 **Reverse Diffusion Process**
-![Reverse_Process](/images/Reverse_Process.png)
+![Reverse_Process](/images/Reverse_Process.PNG)
 
 By doing this and when having a trained model that is capable of doing this task, we are able to start from complete noise and output a new image.
 
