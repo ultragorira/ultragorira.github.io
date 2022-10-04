@@ -23,6 +23,7 @@ Below you can see the code written for achieving what is listed above. A few not
 - For Gradio, at the beginning I was passing the images (PIL) to the Gallery component but actually, you need to pass the paths of the images generated. Took me a while to figure it out.
 - The number of picture in output are based on the slider number selected. This value is passed in the create_img function. All it takes to tell the model to return (N) images is to have the prompt (coming from the textbox) as a list and muliplied by the number. "prompt = [prompt] * number_output_requested"
 - Be default the app will be availble on localhost but you can also specify share=True in the launch function. 
+- If you do not have any GPU available, you can always run this on Google Colab!
 
 
 ```python
