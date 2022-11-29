@@ -408,6 +408,8 @@ The training will be for 60 epochs. Below the output will training is running:
 
 ![training](/images/CNN/training.png)
 
+The model decreased the validation loss until epoch 20, after that it did not anymore.
+
 Now that the model is trained and we have saved the best performant model, we can test it on the test dataset. These images the model has never seen before.
 
 ```
@@ -428,6 +430,58 @@ Almost never you will want to train a whole CNN yourself. Modern CNN train on hu
 With Transfer learning, we can use a pretrained network to fine tune it for our needs. 
 For this implementation I selected ResNet50 which is a CNN that is 50 layers deep. This network was trained on ImageNet which has millions of images.
 
-```
+
+### Load the model
 
 ```
+from torchvision.models import resnet50, ResNet50_Weights
+model_transfer = resnet50(weights=ResNet50_Weights.IMAGENET1K_V1)
+```
+
+The last layer of this network is called **fc** (Fully connected and has 1000 neurons).
+We will modify this layer to be outputting only 50 and we will freeze the gradients.
+
+```
+for parameters in model_transfer.parameters():
+    parameters.requires_grad = False
+
+model_transfer.fc = nn.Sequential(nn.Linear(2048, 512),
+                                    nn.ReLU(),
+                                    nn.Dropout(0.15),
+                                    nn.Linear(512, 50),
+)
+
+model_transfer.to(device)
+```
+
+### Let's train
+
+```
+optimizer = get_optimizer(model_transfer, lr=0.01, momentum=0.9)
+trained_model_transfer_learning = train(50,
+                        loaders_dict, 
+                        model_transfer, 
+                        optimizer,
+                        get_scheduler(optimizer),
+                        get_loss_function(), 
+                        True if device == "cuda" else False,
+                        'cnn_transfer_learning.pt')
+
+```
+
+For this model we trained for 50 epochs. 
+At epoch 48, which is the last time the model was saved, the validation loss was 0.030746
+For the model from scratch, the best validation loss was 0.088764
+
+### Let's test the model
+
+```
+model_transfer.load_state_dict(torch.load('cnn_transfer_learning.pt'))
+test(loaders_dict, model_transfer, get_loss_function())
+```
+
+Output =>
+Test Loss: 0.884768
+Test Accuracy: 77% (970/1250)
+
+Wow, the improvement is noticeable and we did not really do much to get these numbers.
