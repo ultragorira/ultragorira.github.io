@@ -485,3 +485,46 @@ Test Loss: 0.884768
 Test Accuracy: 77% (970/1250)
 
 Wow, the improvement is noticeable and we did not really do much to get these numbers.
+
+## Inference time
+
+Let's do some inference and see what are the results on some random image. We will take the top 5 predictions of an image and see which are the corresponding labels.
+
+```
+ef predict_landmarks(img_path, k):
+    top_k_classes = []
+    img = Image.open(img_path)
+    convert_to_tensor = transforms.Compose([transforms.Resize([224,224]),
+                                     transforms.ToTensor()])
+    img = convert_to_tensor(img)
+    img.unsqueeze_(0)
+    
+    img = img.to(device)
+        
+    model_transfer.eval()
+    output = model_transfer(img)
+    value, index_class = output.topk(k)
+
+    for index in index_class[0].tolist():
+        top_k_classes.append(classes[index])
+    
+    model_transfer.train()
+        
+    return value[0].tolist(), top_k_classes
+
+
+predict_landmarks('data/landmark_images/test/09.Golden_Gate_Bridge/1bc7a7f05288153b.jpg', 5)
+```
+Output =>
+([16.725576400756836,
+  10.52921199798584,
+  10.092767715454102,
+  8.731866836547852,
+  7.1621599197387695],
+ ['Golden Gate Bridge',
+  'Forth Bridge',
+  'Brooklyn Bridge',
+  'Dead Sea',
+  'Niagara Falls'])
+
+Well done, the image in input was from the Golden Gate Bridge and the prediction with highest % is indeed the Golden Gate Bridge.
