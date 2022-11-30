@@ -1,4 +1,4 @@
-# CNN for Image Classification
+# CNN for Image Classification from scratch and with Transfer Learning
 
 In this post I will walk you through on how to use Convolutional Neural Networks to build a model for image classification. I will first build the model from scratch and train it on a dataset. The second part of the post will do the implementation of the classifier by leveraging the so called transfer learning method.
 
@@ -28,7 +28,7 @@ import splitfolders
 from typing import Any
 ```
 
-A few words on some of the libraries imported. [ImbalancedDatasetSampler](https://pypi.org/project/torchsampler/) from torchsampler is a neat library that allows to rebalance class distributions when sampling. [splitfolders](https://pypi.org/project/split-folders/) I used to split the train dataset in test and validation, with a ration of .8/.2. There are other ways of doing this but I found it very simple and straightforward and you can also split the data with a seed for reproducibility if you need to.
+A few words on some of the libraries imported. [ImbalancedDatasetSampler](https://pypi.org/project/torchsampler/) from torchsampler is a neat library that allows to rebalance class distributions when sampling. [splitfolders](https://pypi.org/project/split-folders/) I used to split the train dataset in train and validation, with a ratio of .8/.2. There are other ways of doing this but I found it very simple and straightforward and you can also split the data with a seed for reproducibility if you need to.
 
 
 ### Download the data and split it
@@ -66,8 +66,8 @@ test_dataset_path = os.path.join(DATA_LOCATION, 'test')
 
 ## Transform the data and DataLoaders Creation
 
-We need to be able to load the images just downloaded as Tensors and feed them to our model. As you probably know already, neural networks whether there we are talking about strings, images, video etc. the input needs to be converted to a Tensor, to numbers. For our model we will have a two different "transformation", one for the train dataset and one for both the validation and test dataset.
-For the test dataset we will resize the images to 224 by 224 and then do some **data augmentation**. In short, in order to challenge the training of the network, we will apply some modifications to the images but not to all. For this implementation I chose the below ones but there are a tons of other different dat augmentation that you can do/experiment with:
+We need to be able to load the images just downloaded as Tensors and feed them to our model. As you probably know already, neural networks whether we are talking about strings, images, video etc. the input needs to be converted to a Tensor, to numbers. For our model we will have a two different "transformation", one for the train dataset and one for both the validation and test dataset.
+For the test dataset we will resize the images to 224 by 224 and then do some **data augmentation**. In short, in order to challenge the training of the network, we will apply some modifications to the images but not to all. For this implementation I chose the below ones but there are a tons of other different data augmentation that you can do/experiment with:
 
 - RandomVerticalFlip => This will randomly flip upside down a picture (Maybe not too smart for landmarks?)
 - RandomHorizonatalFlip => This will randomly flip on x axis the picture, basically mirroring it. 
@@ -223,7 +223,7 @@ for idx, image in enumerate(images[0:30]):
 
 ![train](/images/CNN/traindataset.PNG)
 
-You can see that some of the images are flipped sometimes and some have altered colors, that's do to the transformation above. Only of the test dataset.
+You can see that some of the images are flipped sometimes and some have altered colors, that's do to the transformation above. Only of the train dataset.
 
 ## Model Architecture
 
@@ -404,7 +404,7 @@ trained_model_scratch = train(60,
                         'cnn_scratch.pt')
 ```
 
-The training will be for 60 epochs. Below the output will training is running:
+The training will be for 60 epochs. Below the output while training is running:
 
 ![training](/images/CNN/training.png)
 
@@ -439,7 +439,7 @@ model_transfer = resnet50(weights=ResNet50_Weights.IMAGENET1K_V1)
 ```
 
 The last layer of this network is called **fc** (Fully connected and has 1000 neurons).
-We will modify this layer to be outputting only 50 and we will freeze the gradients.
+We will modify this layer to be outputting only 50 and we will freeze the weights.
 
 ```
 for parameters in model_transfer.parameters():
@@ -471,6 +471,7 @@ trained_model_transfer_learning = train(50,
 
 For this model we trained for 50 epochs. 
 At epoch 48, which is the last time the model was saved, the validation loss was 0.030746
+
 For the model from scratch, the best validation loss was 0.088764
 
 ### Let's test the model
@@ -484,14 +485,14 @@ Output =>
 Test Loss: 0.884768
 Test Accuracy: 77% (970/1250)
 
-Wow, the improvement is noticeable and we did not really do much to get these numbers.
+Wow, the improvement is noticeable and we did not really do much to get these numbers. The model is ~3 times more accurate.
 
 ## Inference time
 
 Let's do some inference and see what are the results on some random image. We will take the top 5 predictions of an image and see which are the corresponding labels.
 
 ```
-ef predict_landmarks(img_path, k):
+def predict_landmarks(img_path, k):
     top_k_classes = []
     img = Image.open(img_path)
     convert_to_tensor = transforms.Compose([transforms.Resize([224,224]),
@@ -528,3 +529,5 @@ Output =>
   'Niagara Falls'])
 
 Well done, the image in input was from the Golden Gate Bridge and the prediction with highest % is indeed the Golden Gate Bridge.
+
+The full notebook with code can be found [here](https://github.com/ultragorira/AI_and_ML/blob/master/CNN/cnn_from_scratch_to_transfer_learning.ipynb)
