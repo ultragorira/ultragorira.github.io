@@ -221,7 +221,7 @@ for idx, image in enumerate(images[0:30]):
 
 ```
 
-![train](/images/CNN/traindataset.PNG)
+![train](/images/CNN/traindataset.png)
 
 You can see that some of the images are flipped sometimes and some have altered colors, that's do to the transformation above. Only of the train dataset.
 
@@ -295,7 +295,7 @@ We can take a look at the model and each layer shapes plus number of parameters 
 summary(cnn_model, (3, 224, 224))
 ```
 
-![model_stats](/images/CNN/model_stats.png)
+![model_stats](/images/CNN/model_stats.PNG)
 
 ### Functions for train and test
 
@@ -406,7 +406,7 @@ trained_model_scratch = train(60,
 
 The training will be for 60 epochs. Below the output while training is running:
 
-![training](/images/CNN/training.png)
+![training](/images/CNN/training.PNG)
 
 The model decreased the validation loss until epoch 20, after that it did not anymore.
 
