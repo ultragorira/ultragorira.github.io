@@ -82,7 +82,7 @@ def parse_args() -> Namespace:
 
     parser = ArgumentParser(prog = "Remove text from image", description = __doc__)
     parser.add_argument("image_path", 
-                        help = 'Pah to image')
+                        help = 'Path to image')
 
     return parser.parse_args()
 
@@ -101,8 +101,10 @@ if __name__ == "__main__":
 
 ![Processed Image](/images/OCR/processed.jpg)
 
-Here youy can see the car plate and car models were removed pretty neatly. Additional some text on the left was removed as well. This implementation could be further improved by analayzing whether the text is really a PII or not, for example with [Presidio](https://pypi.org/project/presidio-analyzer/) and then do the inpainting. 
+Here youy can see the car plate and car model were removed pretty neatly. Additionally, some text on the left was removed as well. This implementation could be further improved by analayzing whether the text is really a PII or not, for example with [Presidio](https://pypi.org/project/presidio-analyzer/) and then do the inpainting. 
 The results are really depended on how effective the OCR framework is since this solution is mainly just grabbing detections and making masks on the bounding boxes. 
+
+Code available also [here](https://github.com/ultragorira/AI_and_ML/blob/master/AI_and_ML/remove_text_from_image.py)
 
 Thank you for reading. 
 
