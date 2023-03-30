@@ -1,6 +1,10 @@
 # Fine-tuning ChatGPT with custom data
 
+<img align = "center" src="https://upload.wikimedia.org/wikipedia/commons/0/04/ChatGPT_logo.svg" data-canonical-src="https://upload.wikimedia.org/wikipedia/commons/0/04/ChatGPT_logo.svg" width="400" height="400" />
+
+
 ChatGPT, who hasn't heard of it yet? The rise of LLMs has been somewhat impressive in the past months. The whole community is all over the place regarding the latest developments and introduction of GPT4. Like many others, I have myself been playing around with ChatGPT. However, in this post I will outline some steps that can be taken to fine-tuning ChatGPT. 
+
 
 ## The Data
 
