@@ -372,15 +372,13 @@ with gr.Blocks() as ui:
     reset_selected_pixels.click(reset_annotation)
 
 
-    
-
-
-
 if __name__ == "__main__":
     ui.launch()
 ```
 
-The concept is really basic. We have an input image. With the "select" feature we are able to catch the clicked index and feed it to the SAM predictor. For the point_coords we will pass the numpy array of the selected pixels and as point_labels an array of 1s with the shape of point_coords. For this particular case, we are setting the multimask to False to get just 1 mask in return. Once the mask is available, it is converted with PIL with the fromarray method. 
+The concept is really basic. We have an input image. With the "select" feature we are able to catch the clicked index and feed it to the SAM predictor. For the point_coords we will pass the numpy array of the selected pixels and as point_labels an array of 1s with the shape of point_coords. For this particular case, we are setting the multimask to False to get just 1 mask in return. Once the mask is available, it is converted to a PIL image with the fromarray method.
+
+There is a reset button to remove the annotations done so far. This is just a simple app and can be further improved of course. It is after just 40ish lines of code.
 
 ### SAM Gradio Example
 
