@@ -6,7 +6,7 @@ The topic of this post generated from a need of mine to find a way of removing b
 
 ## UNET Architecture
 
-![UNET](/images/UNET/u-net-architecture.PNG)
+![UNET](/images/UNET/u-net-architecture.png)
 
 Image taken from the original paper here: https://arxiv.org/abs/1505.04597
 
