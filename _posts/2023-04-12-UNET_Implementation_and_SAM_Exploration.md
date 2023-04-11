@@ -382,6 +382,24 @@ There is a reset button to remove the annotations done so far. This is just a si
 
 ### SAM Gradio Example
 
+App with no input
 
+![Gradio](/images/UNET/Gradio_NoInput.PNG)
+
+Add an image input, our beloved Capuchin bird
+
+![Gradio](/images/UNET/Gradio_Input.PNG)
+
+Annotate just the bird
+
+![Gradio](/images/UNET/Gradio_Output1.PNG)
+
+Reset Annotations and select just the tree
+
+![Gradio](/images/UNET/Gradio_Output1b.PNG)
+
+Another example
+
+![Gradio](/images/UNET/Gradio_Output2.PNG)
 
 
