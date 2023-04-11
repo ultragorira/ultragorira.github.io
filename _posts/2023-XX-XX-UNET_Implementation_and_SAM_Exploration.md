@@ -130,7 +130,8 @@ Note: in the original paper the output and input did not match in shape while in
 ## SAM, the GPT of Image Segmentation?
 
 Segment Anything Model was introduced just few days ago by Facebook. The model is available on [GitHub](https://github.com/facebookresearch/segment-anything#model-checkpoints) and after trying the online demo I had to give a better look at its capabilities as the results are just amazing. The first thing that I asked myself while trying SAM out was "is this the GPT of Image Segmentation?". 
-To use SAM locally is very simple and the GitHub repo has very detail instructions on how to use it so I will not list the same information here. Below are some examples I ran locally. 
+
+SAM’s architecture consists of an image encoder, a prompt encoder, and a mask decoder. SAM is built on the Vision Transformer architecture. To use SAM locally is very simple and the GitHub repo has very detail instructions on how to use it so I will not list the same information here. Below are some examples I ran locally. 
 
 ## SAM Examples
 
@@ -314,6 +315,75 @@ Just for fun, let's try to segment myself:
 ![Me_mask](/images/UNET/test_auto_mask.png)
 
 Quite impressive how many elements it detected automatically. 
+
+## Create your own Mask Generator with Gradio
+
+From the examples above it is obvious that it is not practical to select a point from a matplotlib graph. The demo available lets you test out a very nice UI that works with SAM in the background. I am not a web developer but what if I wanted to create my own mask generator GUI, would it be possible to create it with relative ease? Well, here comes Gradio to the rescue. 
+
+```
+import gradio as gr
+import numpy as np
+from PIL import Image
+from segment_anything import sam_model_registry, SamPredictor
+    
+
+def load_SAM(sam_checkpoint: str,
+             model_type: str,
+             device: str) -> SamPredictor:
+    """Load SAM Predictor"""
+
+    sam = sam_model_registry[model_type](checkpoint=sam_checkpoint)
+    sam.to(device=device)
+    predictor = SamPredictor(sam)
+
+    return predictor
+
+
+sam_predictor = load_SAM("sam_vit_h_4b8939.pth", "vit_h", "cuda")
+
+selected_pixels = []
+
+with gr.Blocks() as ui:
+    in_image = gr.Image(label="Input Image")
+    mask_image = gr.Image(label="SAM Mask")
+
+    def create_mask(image: np.ndarray, event: gr.SelectData) -> Image:
+        """Function to create mask with SAM"""
+        selected_pixels.append(event.index)
+        sam_predictor.set_image(image)
+        point_coords = np.array(selected_pixels)
+        point_labels = np.ones(point_coords.shape[0])
+        mask, _, _ = sam_predictor.predict(
+            point_coords = point_coords,
+            point_labels = point_labels,
+            multimask_output=False
+        )
+        mask = Image.fromarray(mask[0, :, :])
+        return mask
+    
+    def reset_annotation() -> None:
+        """Reset annotations done so far"""
+        selected_pixels = [] 
+
+    with gr.Row():
+        reset_selected_pixels = gr.Button(value="Reset annotations")
+
+    in_image.select(create_mask, [in_image], [mask_image])
+    reset_selected_pixels.click(reset_annotation)
+
+
+    
+
+
+
+if __name__ == "__main__":
+    ui.launch()
+```
+
+The concept is really basic. We have an input image. With the "select" feature we are able to catch the clicked index and feed it to the SAM predictor. For the point_coords we will pass the numpy array of the selected pixels and as point_labels an array of 1s with the shape of point_coords. For this particular case, we are setting the multimask to False to get just 1 mask in return. Once the mask is available, it is converted with PIL with the fromarray method. 
+
+### SAM Gradio Example
+
 
 
 
