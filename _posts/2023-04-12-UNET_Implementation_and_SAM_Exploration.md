@@ -131,7 +131,7 @@ Note: in the original paper the output and input did not match in shape while in
 
 Segment Anything Model was introduced just few days ago by Facebook. The model is available on [GitHub](https://github.com/facebookresearch/segment-anything#model-checkpoints) and after trying the online demo I had to give a better look at its capabilities as the results are just amazing. The first thing that I asked myself while trying SAM out was "is this the GPT of Image Segmentation?". 
 
-SAM’s architecture consists of an image encoder, a prompt encoder, and a mask decoder. SAM is built on the Vision Transformer architecture. To use SAM locally is very simple and the GitHub repo has very detail instructions on how to use it so I will not list the same information here. Below are some examples I ran locally. 
+SAM’s architecture consists of an image encoder, a prompt encoder, and a mask decoder. SAM is built on the Vision Transformer architecture. To use SAM locally is very simple and the GitHub repo has very detailed instructions on how to use it so I will not list the same information here. Below are some examples I ran locally. 
 
 ## SAM Examples
 
@@ -181,7 +181,7 @@ def show_anns(anns):
 
 ```
 
-For the first image I wanted to try, since UNET was related to the biomedical sector, I tested SAM on some cells images
+Since UNET was related to the biomedical sector, I tested SAM on some cells images
 
 ```
 image = cv2.imread('cells.jpg')
@@ -262,7 +262,7 @@ for i, (mask, score) in enumerate(zip(masks, scores)):
 
 ![Cells_selection_mask](/images/UNET/cell_grid_point_mask.png)
 
-By simplying giving a coordinate within the are I wanted to segment, the model was able to perfectly to the mask for it. Now, you can also do a auto-mask which will detect automatically any element that can be segmented in the image. There are two ways to do this. Either by using the default settings or by tweaking the hyperparameters, depending on the results you need this may be needed. Examples:
+By simplying giving a coordinate within the are I wanted to segment, the model was able to perfectly generate the mask for it. Now, you can also do a auto-mask which will detect automatically any element that can be segmented in the image. There are two ways to do this. Either by using the default settings or by tweaking the hyperparameters, depending on the results you need, this may be needed. Examples:
 
 ```
 
@@ -278,7 +278,7 @@ plt.show()
 
 ![Cells_selection_mask](/images/UNET/cell_auto_mask1.png)
 
-It may not be too clear from this image but the model was able to segment pretty almost all elements in the image. By looking at the length of the masks, it is 92. SAM did 92 masks on this image. 
+It may not be too clear from this image but the model was able to segment pretty well almost all elements in the image. By looking at the length of the masks, it is 92. SAM did 92 masks on this image. 
 Let's try to tweak the parameters of the SamAutomaticMaskGenerator class. 
 
 ```
