@@ -50,6 +50,9 @@ For this demo, I took a taxi dataset from Kaggle from [here](https://www.kaggle.
 
 ## See the CSV Agent in action
 
+https://user-images.githubusercontent.com/62200472/234669422-76fc1fc8-2b7f-4fd6-a791-057bedf47b41.mp4
+
+In the terminal it is possible to follow what the agent is thinking to do, what actions and what pandas commands are being used, pretty cool stuff. 
 
 
 
