@@ -54,5 +54,10 @@ https://user-images.githubusercontent.com/62200472/234669422-76fc1fc8-2b7f-4fd6-
 
 In the terminal it is possible to follow what the agent is thinking to do, what actions and what pandas commands are being used, pretty cool stuff. 
 
+Now, one thing that is important to note is that, if the prompt you give is not well structured, you may get a wrong answer. I could verify the answers myself but in some case I could see that something was wrong. 
+For example, when asked "what was the longest trip done", if you look at the dataset, the only information about distances are longitude and latitude of pick-up and drop-off. To calculate the distance you would need to use a package such as [geopy](https://geopy.readthedocs.io/en/stable/). However, when prompted this question, the agent started to mention about a column named "Distance" in the dataframe that could have been used to calculate the distance. The column does not exist so not sure what was going on...hallucinations? :) 
+
+
+
 
 
