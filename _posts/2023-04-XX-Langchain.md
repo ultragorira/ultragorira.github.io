@@ -60,6 +60,8 @@ For example, when asked "what was the longest trip done", if you look at the dat
 # Custom GPT
 
 
+https://user-images.githubusercontent.com/62200472/234671823-89f30eb2-3872-4750-bdd2-32f48680c32f.mp4
+
 
 ```
 import streamlit as st
