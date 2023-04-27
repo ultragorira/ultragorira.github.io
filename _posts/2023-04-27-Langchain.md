@@ -88,7 +88,7 @@ Below is the whole code.
 
 In case the video is not too clear, here is a screenshot of the interaction
 
-![samchat](/images/Langchain/samchat.PNG)
+![samchat](/images/Langchain/SAMChat.PNG)
 
 ## Full Code
 
