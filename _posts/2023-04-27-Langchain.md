@@ -53,8 +53,11 @@ For this demo, I took a taxi dataset from Kaggle from [here](https://www.kaggle.
 <video src="https://user-images.githubusercontent.com/62200472/234669422-76fc1fc8-2b7f-4fd6-a791-057bedf47b41.mp4" controls="controls" style="max-width: 730px;">
 </video>
 
+In the terminal it is possible to follow what the agent is thinking to do, what actions and what pandas commands are being used, pretty cool stuff.
 
-In the terminal it is possible to follow what the agent is thinking to do, what actions and what pandas commands are being used, pretty cool stuff. 
+In case it is not too clear from the video, this is what was asked to the agent to do:
+
+![csvagent](/images/Langchain/ExcelQuestion.PNG)
 
 Now, one thing that is important to note is that, if the prompt you give is not well structured, you may get a wrong answer. I could verify the answers myself but in some case I could see that something was wrong. 
 For example, when asked "what was the longest trip done", if you look at the dataset, the only information about distances are longitude and latitude of pick-up and drop-off. To calculate the distance you would need to use a package such as [geopy](https://geopy.readthedocs.io/en/stable/). In some cases the agent was trying to install geopy and run the right commands but it was always encoutering the same mistake and could not solve the problem. In one instance though, when prompted this question, the agent started to mention about a column named "Distance" in the dataframe that could have been used to calculate the distance. The column does not exist so not sure what was going on...hallucinations? :)
@@ -82,6 +85,10 @@ Then you chunk the text and decide the size of the chunks. In this case we use t
 This agent is able to retrieve information from the document and knows what is SAM and details about it, so it seems like it is working fine. 
 This same method can be applied to different scenarios, like having an interactive Q&A, especially when having a multitude of different documents. 
 Below is the whole code. 
+
+In case the video is not too clear, here is a screenshot of the interaction
+
+![samchat](/images/Langchain/samchat.png)
 
 ## Full Code
 
