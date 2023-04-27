@@ -17,7 +17,7 @@ The Streamlit app is very simple and has on the left side panel the options to i
 
 To run a query on a CSV is actually very simple and does not require that many lines of code. One thing to note is that you will need to have the OpenAI API Key in your environment variables, else this will not work. 
 
-All you have to do, once you load the Excel in memory, is to pass the file to the agent, set the temperature (preferably to 0 so it does not make up information, although I will show you that in one case it gave an absurd answer despite the temperature set to 0) and the verbose to either True, if you want to see the whole chain on thoughts of the agent in the terminal or False if you do not. 
+All you have to do, once you load the Excel in memory, is to pass the file to the agent, set the temperature (preferably to 0 so it does not make up information, although I will show you that in one case it gave an absurd answer despite the temperature set to 0) and the verbose to either True, if you want to see the whole agent's chain of thoughts in the terminal, or False if you do not. 
 
 Here is a snapshot of the code to do that. 
 
@@ -55,13 +55,33 @@ https://user-images.githubusercontent.com/62200472/234669422-76fc1fc8-2b7f-4fd6-
 In the terminal it is possible to follow what the agent is thinking to do, what actions and what pandas commands are being used, pretty cool stuff. 
 
 Now, one thing that is important to note is that, if the prompt you give is not well structured, you may get a wrong answer. I could verify the answers myself but in some case I could see that something was wrong. 
-For example, when asked "what was the longest trip done", if you look at the dataset, the only information about distances are longitude and latitude of pick-up and drop-off. To calculate the distance you would need to use a package such as [geopy](https://geopy.readthedocs.io/en/stable/). However, when prompted this question, the agent started to mention about a column named "Distance" in the dataframe that could have been used to calculate the distance. The column does not exist so not sure what was going on...hallucinations? :) 
+For example, when asked "what was the longest trip done", if you look at the dataset, the only information about distances are longitude and latitude of pick-up and drop-off. To calculate the distance you would need to use a package such as [geopy](https://geopy.readthedocs.io/en/stable/). In some cases the agent was trying to install geopy and run the right commands but it was always encoutering the same mistake and could not solve the problem. In one instance though, when prompted this question, the agent started to mention about a column named "Distance" in the dataframe that could have been used to calculate the distance. The column does not exist so not sure what was going on...hallucinations? :)
 
 # Custom GPT
 
+In my previous [blog post](https://ultragorira.github.io/2023/04/11/UNET_Implementation_and_SAM_Exploration.html) I wrote about UNET and SAM from Meta.
+SAM was released only a few weeks ago and if you ask ChatGPT what is SAM, this is what you get in return.
+
+![SAM](/images/Langchain/SAM_ChatGPT.PNG)
+
+This is expected since the data is only until Sept 2021. For this demo, I took the [paper for SAM](https://ai.facebook.com/research/publications/segment-anything/). 
+
+There are different ways of doing this but for this demo I used the Chroma.from_documents method. It would be better to save it as a db so that it is persistent. 
+
+The txt data you first pass it to the TextLoader available from the langchain.document_loaders. 
+Then you chunk the text and decide the size of the chunks. In this case we use the OpenAIEmbeddings and since we want to have a conversation with the bot, we will use the ConversationalRetrievalChain. One thing to note from the parameters passed to the chain is the "retriever = vectorstore.as_retriever()," The vectorstore in this case is the document passed to Chroma.
+
+
+## Ask about SAM to the customized GPT
 
 https://user-images.githubusercontent.com/62200472/234671823-89f30eb2-3872-4750-bdd2-32f48680c32f.mp4
 
+
+This agent is able to retrieve information from the document and knows what is SAM and details about it, so it seems like it is working fine. 
+This same method can be applied to different scenarios, like having an interactive Q&A, especially when having a multitude of different documents. 
+Below is the whole code. 
+
+## Full Code
 
 ```
 import streamlit as st
