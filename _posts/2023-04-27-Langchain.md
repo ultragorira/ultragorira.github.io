@@ -50,7 +50,9 @@ For this demo, I took a taxi dataset from Kaggle from [here](https://www.kaggle.
 
 ## See the CSV Agent in action
 
-https://user-images.githubusercontent.com/62200472/234669422-76fc1fc8-2b7f-4fd6-a791-057bedf47b41.mp4
+<video src="https://user-images.githubusercontent.com/62200472/234669422-76fc1fc8-2b7f-4fd6-a791-057bedf47b41.mp4" controls="controls" style="max-width: 730px;">
+</video>
+
 
 In the terminal it is possible to follow what the agent is thinking to do, what actions and what pandas commands are being used, pretty cool stuff. 
 
@@ -74,8 +76,8 @@ Then you chunk the text and decide the size of the chunks. In this case we use t
 
 ## Ask about SAM to the customized GPT
 
-https://user-images.githubusercontent.com/62200472/234671823-89f30eb2-3872-4750-bdd2-32f48680c32f.mp4
-
+<video src="https://user-images.githubusercontent.com/62200472/234671823-89f30eb2-3872-4750-bdd2-32f48680c32f.mp4" controls="controls" style="max-width: 730px;">
+</video>
 
 This agent is able to retrieve information from the document and knows what is SAM and details about it, so it seems like it is working fine. 
 This same method can be applied to different scenarios, like having an interactive Q&A, especially when having a multitude of different documents. 
