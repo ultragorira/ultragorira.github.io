@@ -192,7 +192,7 @@ A few comments in here:
 
 Fire up the gradio app and open it in the browser. The UI is very simple, just type your question about the video and wait for the answer from the bot, it is very quick in doing that. 
 
-The video in question was about AI News of the week (last week from the time of this blog post). Some of the topic were [NVIDIA Neuralangelo](https://research.nvidia.com/publication/2023-06_neuralangelo-high-fidelity-neural-surface-reconstruction), [RealityGPT](https://www.youtube.com/watch?v=Lw6yKMGPi3U), etc.
+The video in question was about AI News of the week (last week from the time of this blog post). Some of the topics were [NVIDIA Neuralangelo](https://research.nvidia.com/publication/2023-06_neuralangelo-high-fidelity-neural-surface-reconstruction), [RealityGPT](https://www.youtube.com/watch?v=Lw6yKMGPi3U), etc.
 
 ## CHAT EXAMPLES
 
