@@ -180,7 +180,7 @@ demo.launch(debug=True, enable_queue=True)
 
 A few comments in here:
 
-- We use the ConversationalRetrievalChain and ConversationBufferMemory from Langchain so that we can have that chat workflow we are looking for.
+- We use the ***ConversationalRetrievalChain*** and ***ConversationBufferMemory*** from Langchain so that we can have that chat workflow we are looking for.
 
 - In the ConversationRetrievalChain we pass OpenAI as LLM (could set others too if you wanted to), as retriever it is the vector db we created earlier.
 
