@@ -6,7 +6,7 @@ Following up on my latest blog post on [Langchain](https://ultragorira.github.io
 
 ***Langchain*** to create embeddings (again OpenAI), create a vector store (Chroma) and interaction with it via LLM.
 
-***PyTube*** to download the audio of a video from YouTube. Theoretically you could have any audio and create embeddings on it. 
+***PyTube*** to download the audio of a video from YouTube. 
 
 ***Whisper*** from OpenAI to create transcriptions on the downloaded audio.
 
@@ -24,9 +24,9 @@ Following up on my latest blog post on [Langchain](https://ultragorira.github.io
 
 ## Setup
 
-We will have two main scripts for this. In one script we will take care of the audio downloading, transcription and vector db. In the second script we will have the Gradio Chat UI and use the vectore store created with the first script.
+We will have two main scripts for this. In one script we will take care of the audio downloading, transcription and vector db. In the second script we will have the Gradio Chat UI and use the vector db created with the first script.
 
-Let's get to work and download the audio, transcribe and create the vector db.
+Let's get to work and download the audio, transcribe it and create the vector db.
 
 ***PART I***
 
