@@ -206,6 +206,8 @@ The video in question was about AI News of the week (last week from the time of 
 
 If you watch the video, the replies from the bot are correct. Of course, in some cases the bot would reply "I don't know" which was unexpected. Also, the replies are not really that extensive. Moreover, when asked to describe with max 7 sentences what it's discussed in the video, the reply was simply made-up, even though the temperature is set to 0:
 
-"The video discusses seven AI advances that may have been missed in the past week. These advances include the development of AI-powered robots that can perform complex tasks, the use of AI to improve medical diagnosis accuracy, the use of AI to improve facial recognition accuracy, the use of AI to improve natural language processing, the use of AI to improve autonomous vehicle navigation, the use of AI to improve image recognition accuracy, and the use of AI to improve machine learning algorithms." Maybe the transcription was not that succesfull or maybe a different splitting would help?  ```¯\_(ツ)_/¯```
+*The video discusses seven AI advances that may have been missed in the past week. These advances include the development of AI-powered robots that can perform complex tasks, the use of AI to improve medical diagnosis accuracy, the use of AI to improve facial recognition accuracy, the use of AI to improve natural language processing, the use of AI to improve autonomous vehicle navigation, the use of AI to improve image recognition accuracy, and the use of AI to improve machine learning algorithms.* 
+
+Maybe the transcription was not that succesfull or maybe a different splitting would help?  ```¯\_(ツ)_/¯```
 
 
