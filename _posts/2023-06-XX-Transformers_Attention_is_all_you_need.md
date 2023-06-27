@@ -37,5 +37,22 @@ In 2017 a paper called [Attention Is All You Need](https://arxiv.org/pdf/1706.03
 
 ![Transformers](/images/Transformers/Transformers.PNG)
 
-Transformers have an encoder and a decoder.  
+Transformers have an encoder (on the left) and decoder (on the right). The encoder's job is to map the input sequence to a representation that includes all the information of the input. The same is then fed to the decoder and in steps generates an output. The previous output is also fed to the decoder. 
+
+Actually the encode is made of 6 encoders blocks, each one made up of a self-attention layer and a feed forward layer. The decoder is also made of 6 decoders, each of made of two self-attention layers and one feed forward layer.
+
+## Encoder
+
+Firstly the sequence input, in this example a sentence, is fed into a word embedding layer which can be thought of something like a look-up table, where each word is represented as a vector. The word will be represented as a vector of numbers. 
+
+![InputEmbedding](/images/Transformers/InputEmbedding.PNG)
+
+Next a information about the position of the input is added to the embeddings since the Transformers do not have the recurrence and do not know what is the position of the inputs. This is done with **Positional Encoding**, by using sin and cos functions.
+
+![SinCos](/images/Transformers/Positional_Encoding.PNG)
+
+For odd timesteps the cos function is used, for even timesteps instead the sin function to calculate the vectors and add them to the embeddings vectors. Sin and Cos have linear properties so it is easy for the network to learn. 
+
+
+
 
