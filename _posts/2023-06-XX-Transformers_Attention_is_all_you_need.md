@@ -43,15 +43,98 @@ Actually the encode is made of 6 encoders blocks, each one made up of a self-att
 
 ## Encoder
 
-Firstly the sequence input, in this example a sentence, is fed into a word embedding layer which can be thought of something like a look-up table, where each word is represented as a vector. The word will be represented as a vector of numbers. 
+Firstly the sequence input, in this example a sentence but it could be any type of data (image, audio etc.), is fed into a word embedding layer which can be thought of something like a look-up table, where each word is represented as a vector. The word will be represented as a vector of numbers. 
 
 ![InputEmbedding](/images/Transformers/InputEmbedding.PNG)
 
-Next a information about the position of the input is added to the embeddings since the Transformers do not have the recurrence and do not know what is the position of the inputs. This is done with **Positional Encoding**, by using sin and cos functions.
+Next an information about the position of the input is added to the embeddings since the Transformers do not have the recurrence and do not know what is the position of the inputs due to their nature of paralellizing the inputs. This is done with **Positional Encoding**, by using sin and cos functions.
 
 ![SinCos](/images/Transformers/Positional_Encoding.PNG)
 
-For odd timesteps the cos function is used, for even timesteps instead the sin function to calculate the vectors and add them to the embeddings vectors. Sin and Cos have linear properties so it is easy for the network to learn. 
+For odd timesteps the cos function is used, for even timesteps instead the sin function to calculate the vectors and add them to the embeddings vectors. Sine and Cosine are easy for the network to learn. These positional encodings or embeddings, are then added to the vector representation of the inputs. 
+
+Positional Encodings example:
+
+```
+import torch
+import torch.nn as nn
+import math
+import matplotlib.pyplot as plt
+
+class PositionalEncoding(nn.Module):
+    def __init__(self, d_model, max_seq_len):
+        super(PositionalEncoding, self).__init__()
+        self.d_model = d_model
+        
+        # Create a matrix of shape (max_seq_len, d_model)
+        pe = torch.zeros(max_seq_len, d_model)
+        
+        # Calculate the positional encodings
+        position = torch.arange(0, max_seq_len, dtype=torch.float).unsqueeze(1)
+        div_term = torch.exp(torch.arange(0, d_model, 2).float() * (-math.log(10000.0) / d_model))
+        pe[:, 0::2] = torch.sin(position * div_term)
+        pe[:, 1::2] = torch.cos(position * div_term)
+        
+        # Add a batch dimension to the positional encodings
+        self.pe = pe.unsqueeze(0)
+        
+    def forward(self, x):
+        # Add the positional encodings to the input tensor
+        return x + self.pe[:, :x.size(1), :]
+
+# Define the parameters
+d_model = 512
+max_seq_len = 100
+
+# Create the positional encoding
+pos_encoder = PositionalEncoding(d_model, max_seq_len)
+
+# Generate the positional encodings for visualization
+pos_encodings = pos_encoder.pe.squeeze(0).detach().numpy()
+
+# Plot the positional encodings
+plt.figure(figsize=(12, 6))
+plt.imshow(pos_encodings, cmap='coolwarm', aspect='auto')
+plt.xlabel('Embedding Dimension')
+plt.ylabel('Position')
+plt.colorbar(label='Value')
+plt.title('Positional Encodings')
+plt.show()
+```
+![Post](/images/Transformers/Pos_Encoding_Graph.png)
+
+In this example there is a PositionalEncoding class that takes in the dimension of the model (d_model) and the maximum sequence length (max_seq_len) as arguments.
+
+The matrix **pe** of shape (max_seq_len, d_model) holds the positional encodings. Positional encodings are calculated using the sine and cosine functions based on the position and the dimension of the model. These encodings are stored in the pe matrix.
+
+In the forward method, positional encodings are added to the input tensor x. The positional encodings are sliced to match the length of the input sequence, and then added element-wise to the input tensor.
+
+## Encoder Layer
+
+After the positional encodings are added to the input sequence, the main job of the encoder layer in a transformer model is to process the sequence and capture the contextual relationships between the tokens. The encoder layer consists of multiple sub-layers, typically including self-attention and feed-forward layers.
+
+This block is constituted by Multi-Headed Attention followed by a fully connected network. Additionally there are also residual connections around both of Multi attention and fully connected network followed by a layer or normalization.
+
+![EncoderLayer](/images/Transformers/EncoderLayer.PNG)
+
+**MULTI-HEADED ATTENTION**
+
+![QKV](/images/Transformers/QKV.png)
+
+In the Multi-Headed Attention the so-called **Self-Attention** mechanism takes place.  Self-attention is a mechanism that allows each position in the sequence to attend to other positions. It helps the model weigh the importance of different tokens within the sequence when encoding each token. 
+
+The inputs first are fed to three distinct fully connected layers to create the query (**Q**), key (**K**) and value (**V**) vectors. Here's a good [example](https://stats.stackexchange.com/questions/421935/what-exactly-are-keys-queries-and-values-in-attention-mechanisms) of what query, key and value are.
+
+A dot product is performed between Queries and Keys which produces a **Scores** matrix. The Scores matrix determines how much focus should each word be put into other words. The higher the score, the more focus.
+
+![Scores](/images/Transformers/QK_Scores.png)
+
+Next the scores matrix are scaled down by the square root of the dimension of the queries and the keys. By scaling down the scores, the model can have more stable gradients during training, reducing the chances of exploding gradients that can hinder convergence.
+
+Next a **SoftMax** is applied to get the attention weights which results in probabilities between 0 and 1. In this step, the Softmax normalizes the scores across the different positions in the sequence, emphasizing positions with higher scores and de-emphasizing positions with lower scores.
+Once obtained the attention weights, the same are multiplied with the **Value** matrix to get an output vector which is then fed into a Linear layer to process. 
+
+
 
 
 
