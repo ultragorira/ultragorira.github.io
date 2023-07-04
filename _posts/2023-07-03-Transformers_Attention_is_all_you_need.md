@@ -24,14 +24,14 @@ Even though RNNs work with sequence data, they have some limitations such as:
 
 An alternative to RNNs is Long short-term memory neural network which is more complex and is able to handle longer series but due to the complexity of the network, they are slow to train. 
 
-![LSTM_Cell](/images/Transformers/LSTM_Cell.PNG)
+![LSTM_Cell](/images/Transformers/LSTM_Cell.png)
 
 ***RNN and CNN Images taken from the [Deep Learning Nanodegree](https://graduation.udacity.com/confirm/AAGWGLGC) I completed from Udacity in 2022.***
 
 Transformers on the other hand shine with sequence data. The advantages of Transformers, compared to other networks are:
 
 - They use the Attention mechanism which we will read more about later
-- They are not recurrent and they can parallelized
+- They are not recurrent and they can be parallelized
 - They are faster to train
 - Theoretically, given infinite amount of compute resources, they could handle infinite reference window (Just recently [Claude by Anthropic](https://www.anthropic.com/index/100k-context-windows) was released with a 100k tokens, roughly 75k words per time.)
 
@@ -124,7 +124,7 @@ This block is constituted by Multi-Headed Attention followed by a fully connecte
 
 **MULTI-HEADED ATTENTION**
 
-![QKV](/images/Transformers/QKV.png)
+![QKV](/images/Transformers/QKV.PNG)
 
 In the Multi-Headed Attention the so-called **Self-Attention** mechanism takes place.  Self-attention is a mechanism that allows each position in the sequence to attend to other positions. It helps the model weigh the importance of different tokens within the sequence when encoding each token. 
 
@@ -132,7 +132,7 @@ The inputs first are fed to three distinct fully connected layers to create the 
 
 A dot product is performed between Queries and Keys which produces a **Scores** matrix. The Scores matrix determines how much focus should each word be put into other words. The higher the score, the more focus.
 
-![Scores](/images/Transformers/QK_Scores.png)
+![Scores](/images/Transformers/QK_Scores.PNG)
 
 Next the scores matrix are scaled down by the square root of the dimension of the queries and the keys. By scaling down the scores, the model can have more stable gradients during training, reducing the chances of exploding gradients that can hinder convergence.
 
