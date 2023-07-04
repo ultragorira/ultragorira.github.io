@@ -26,7 +26,7 @@ An alternative to RNNs is Long short-term memory neural network which is more co
 
 ![LSTM_Cell](/images/Transformers/LSTM_Cell.png)
 
-***RNN and CNN Images taken from the [Deep Learning Nanodegree](https://graduation.udacity.com/confirm/AAGWGLGC) I completed from Udacity in 2022.***
+***RNN and LSTM Images taken from the [Deep Learning Nanodegree](https://graduation.udacity.com/confirm/AAGWGLGC) I completed from Udacity in 2022.***
 
 Transformers on the other hand shine with sequence data. The advantages of Transformers, compared to other networks are:
 
