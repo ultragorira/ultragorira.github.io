@@ -69,10 +69,98 @@ The Union area is simply just summing up both bounding boxes (taken into condier
 
 Let's do a code implementation of the IoU:
 
+```
+import numpy as np
+
+def iou(predictions: np.ndarray, 
+        labels: np.ndarray, 
+        format: str = "x1y1x2y2"):
+    """
+    Calculates IoU for x1y1x2y2 or xywh bounding boxes
+
+    Parameters:
+        predictions (numpy.ndarray): Predictions done by model
+        labels (numpy.ndarray): Ground truth
+        format (str): x1y1x2y2 format by default, xywh (YOLO style)
+
+    Returns:
+        numpy.ndarray: Intersection over union
+    """
+
+    if format == "x1y1x2y2":
+        box1_x1 = predictions[:, 0:1]
+        box1_y1 = predictions[:, 1:2]
+        box1_x2 = predictions[:, 2:3]
+        box1_y2 = predictions[:, 3:4]
+        box2_x1 = labels[:, 0:1]
+        box2_y1 = labels[:, 1:2]
+        box2_x2 = labels[:, 2:3]
+        box2_y2 = labels[:, 3:4]
+    
+    elif format == "xywh":
+        box1_x1 = predictions[:, 0:1] - predictions[:, 2:3] / 2
+        box1_y1 = predictions[:, 1:2] - predictions[:, 3:4] / 2
+        box1_x2 = predictions[:, 0:1] + predictions[:, 2:3] / 2
+        box1_y2 = predictions[:, 1:2] + predictions[:, 3:4] / 2
+        box2_x1 = labels[:, 0:1] - labels[:, 2:3] / 2
+        box2_y1 = labels[:, 1:2] - labels[:, 3:4] / 2
+        box2_x2 = labels[:, 0:1] + labels[:, 2:3] / 2
+        box2_y2 = labels[:, 1:2] + labels[:, 3:4] / 2
+
+    x1 = np.maximum(box1_x1, box2_x1)
+    y1 = np.maximum(box1_y1, box2_y1)
+    x2 = np.minimum(box1_x2, box2_x2)
+    y2 = np.minimum(box1_y2, box2_y2)
+
+    #clip(0) for when boxes do not intersect
+    intersection = np.clip((x2 - x1), 0, None) * np.clip((y2 - y1), 0, None)
+    box1_area = np.abs((box1_x2 - box1_x1) * (box1_y2 - box1_y1))
+    box2_area = np.abs((box2_x2 - box2_x1) * (box2_y2 - box2_y1))
+
+    return intersection / (box1_area + box2_area - intersection + 1e-6)
 
 
+def test_intersection_over_union():
+    # Test case 1: Two identical boxes, should result in IOU of 1.0
+    box1 = np.array([2, 2, 4, 4])  # Format: [x1, y1, x2, y2]
+    box2 = np.array([2, 2, 4, 4])
+    iou = iou(np.array([box1]), np.array([box2]), format="x1y1x2y2")
+    assert np.allclose(iou, 1.0), f"Test case 1 failed: {iou}"
 
+    # Test case 2: Two non-overlapping boxes, should result in IOU of 0.0
+    box3 = np.array([5, 5, 6, 6])
+    iou = iou(np.array([box1]), np.array([box3]), format="x1y1x2y2")
+    assert np.allclose(iou, 0.0), f"Test case 2 failed: {iou}"
 
+    # Test case 3: Two partially overlapping boxes, should result in a valid IOU value
+    box4 = np.array([3, 3, 5, 5])
+    iou = iou(np.array([box1]), np.array([box4]), format="x1y1x2y2")
+    assert 0.0 <= iou <= 1.0, f"Test case 3 failed: {iou}"
+
+    # Test case 4: Test midpoint format with non-overlapping boxes
+    box5_midpoint = np.array([3, 3, 2, 2])  # Format: [x_center, y_center, width, height]
+    box6_midpoint = np.array([7, 7, 2, 2])
+    iou = iou(np.array([box5_midpoint]), np.array([box6_midpoint]), format="xywh")
+    assert np.allclose(iou, 0.0), f"Test case 4 failed: {iou}"
+
+    print("All test cases passed!")
+
+test_intersection_over_union()
+
+```
+
+**OUTPUT: All test cases passed!**
+
+In the code above we first defined the function to calculate IoU as described earlier. In the function however we check the format of the boxes passed in input. 
+As explained, we were discussing about x1y1 (top left) and x2y2 bottom right as coordinates, but there are knonwn systems like the one used in YOLO, where the coordinates of a box are given by x center, y center, height and width. For these cases we would need to convert the coordinates to that format, as it happens in the function. 
+
+When calculating the intersection, we also need to consider edge cases when there is no intersection at all, hence the clipping to 0. 
+
+Lastly, the IoU is calculated by dividing the intersection with the union (sum of the boxes areas minus intersection to not have it twice).
+The + 1e-6 term added to the denominator in the intersection over union (IoU) calculation is used to prevent division by zero. It is a small epsilon value added to the denominator to ensure numerical stability. This is commonly referred to as "smoothing" or "epsilon smoothing."
+
+A function for testing the IoU is then invoked to verify that the IoU calculation is working as expected. 
+Testing your code is probably one of the best thing you can do. Creating test cases is time consuming, but nowadays with ChatGPT and other LLMs you can do this in a blink of an eye.
 
 # Non Max Suppression
 
