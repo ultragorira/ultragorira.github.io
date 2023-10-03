@@ -72,7 +72,7 @@ Let's do a code implementation of the IoU:
 ```
 import numpy as np
 
-def iou(predictions: np.ndarray, 
+def calculate_iou(predictions: np.ndarray, 
         labels: np.ndarray, 
         format: str = "x1y1x2y2"):
     """
@@ -124,23 +124,23 @@ def test_intersection_over_union():
     # Test case 1: Two identical boxes, should result in IOU of 1.0
     box1 = np.array([2, 2, 4, 4])  # Format: [x1, y1, x2, y2]
     box2 = np.array([2, 2, 4, 4])
-    iou = iou(np.array([box1]), np.array([box2]), format="x1y1x2y2")
+    iou = calculate_iou(np.array([box1]), np.array([box2]), format="x1y1x2y2")
     assert np.allclose(iou, 1.0), f"Test case 1 failed: {iou}"
 
     # Test case 2: Two non-overlapping boxes, should result in IOU of 0.0
     box3 = np.array([5, 5, 6, 6])
-    iou = iou(np.array([box1]), np.array([box3]), format="x1y1x2y2")
+    iou = calculate_iou(np.array([box1]), np.array([box3]), format="x1y1x2y2")
     assert np.allclose(iou, 0.0), f"Test case 2 failed: {iou}"
 
     # Test case 3: Two partially overlapping boxes, should result in a valid IOU value
     box4 = np.array([3, 3, 5, 5])
-    iou = iou(np.array([box1]), np.array([box4]), format="x1y1x2y2")
+    iou = calculate_iou(np.array([box1]), np.array([box4]), format="x1y1x2y2")
     assert 0.0 <= iou <= 1.0, f"Test case 3 failed: {iou}"
 
     # Test case 4: Test midpoint format with non-overlapping boxes
     box5_midpoint = np.array([3, 3, 2, 2])  # Format: [x_center, y_center, width, height]
     box6_midpoint = np.array([7, 7, 2, 2])
-    iou = iou(np.array([box5_midpoint]), np.array([box6_midpoint]), format="xywh")
+    iou = calculate_iou(np.array([box5_midpoint]), np.array([box6_midpoint]), format="xywh")
     assert np.allclose(iou, 0.0), f"Test case 4 failed: {iou}"
 
     print("All test cases passed!")
@@ -164,7 +164,41 @@ Testing your code is probably one of the best thing you can do. Creating test ca
 
 # Non Max Suppression
 
+Non Max Suppression is a technique to clean up the detections done by a model when doing object detection. Since we have understood now what is IoU, the Non Max Suppression is related to it. So first of all, what do need by cleaning up the detections?
 
+![NMS](/images/IOU/NMS.jpg)
+
+NMS is the technique of removing the less accurate bounding boxes and keep only 1 for that detection/class. 
+
+Each bounding box will have a confidence level (how confident the model is for that detection) between 0 and 1, example:
+
+![Confidence](/images/IOU/Confidence_BB.png)
+
+## So how does this work in practice?
+
+1. First of all we select the BB with the highest confidence level. In this examplethe one with 0.85 score.
+2. For the NMS we need to set a hyperparameter that will be used to compare this IoU. For our example let's select 0.4.
+3. Then we compare this BB to each individual other BB, and calculate the IoU as done above. 
+4. If the IoU is greater than the hyperparameter, then we discard the second box. 
+Step 3 and 4 and repeated until there is only 1 box remaining. 
+
+These steps they need to be done per class/detection. 
+**If in an image you have 3 objects, 3 different classes, you will not compare class 1 to class 2 boxes.**
+
+Let's visualize this for an easier understanding:
+
+![NMS_Compare](/images/IOU/NMS_Compare.png)
+
+End Result
+
+![Final_NMS](/images/IOU/Final_NMS.PNG)
+
+The concept is very simple, so let's do a code implementation of this:
+
+```
+
+
+```
 
 # HSV vs RGB
 
