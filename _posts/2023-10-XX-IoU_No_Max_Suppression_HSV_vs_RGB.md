@@ -117,7 +117,8 @@ def calculate_iou(predictions: np.ndarray,
     box1_area = np.abs((box1_x2 - box1_x1) * (box1_y2 - box1_y1))
     box2_area = np.abs((box2_x2 - box2_x1) * (box2_y2 - box2_y1))
 
-    return intersection / (box1_area + box2_area - intersection + 1e-6)
+    iou = intersection / (box1_area + box2_area - intersection + 1e-6)
+    return iou.item()
 
 
 def test_intersection_over_union():
