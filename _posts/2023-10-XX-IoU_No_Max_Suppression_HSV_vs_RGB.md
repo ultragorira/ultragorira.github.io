@@ -281,6 +281,40 @@ print("All test cases passed!")
 
 # HSV vs RGB
 
+As final topic to conclude this blog, I wante to briefly discuss about RGB which probably most of the people have heard of and HSV, less likely. 
+RGB and HSV are two different color representations used in CV and image processing, and each has its own advantages for different tasks.
+
+### RGB (Red, Green, Blue) ###
+
+Representation: RGB represents colors as combinations of red, green, and blue channels. Each pixel in an RGB image is described by three values, typically ranging from 0 to 255 for each channel, indicating the intensity of red, green, and blue light. Whenever you see an RGB image, you can think of it as an image made of 3 layers. Example:
+
+![RGB](/images/IOU/RGB.png)
+
+RGB is a widely used color model for displaying and capturing images. It is a straightforward representation of color and closely aligns with how our eyes perceive color, making it suitable for tasks like image display, visualization, and basic image processing operations. 
+You can imagine an image as a matrix with numbers, where each pixel is a pair of 3 numbers, 1 per channel. If you imagine a picture a matrix, you can already see that you could do some basic CV task by just working at pixel level.
+
+
+### HSV (Hue, Saturation, Value) ###
+
+HSV represents colors based on three components:
+
+Hue: It represents the type of color (e.g., red, blue, yellow) and is represented as an angle around a color wheel, typically ranging from 0 to 360 degrees.
+Saturation: It measures the intensity of the color and ranges from 0 (no color, grayscale) to 100% (full color).
+
+Value (Brightness): It represents the brightness of the color and ranges from 0 (black) to 100% (full brightness).
+Usage: HSV is particularly useful for tasks that involve color segmentation, object tracking, and image processing operations where you want to isolate or manipulate specific colors. It separates the color information from brightness, making it more robust to changes in lighting conditions.
+
+
+## When to use each color model? ##
+
+ RGB is preferred when you need to display or work with images in their original color form, perform basic image operations like resizing, cropping, or when color information is not a primary consideration in the task (e.g., edge detection, simple object detection).
+
+HSV instead is a better solution when your computer vision task requires distinguishing objects based on their color, or when you need to perform color-based segmentation, tracking, or any operation where color plays a crucial role in the analysis. HSV is less sensitive to changes in lighting conditions compared to RGB, which makes it more suitable for these tasks.
+
+Let's make a simple example on this image:
+
+
+
 
 
 
