@@ -74,7 +74,7 @@ import numpy as np
 
 def calculate_iou(predictions: np.ndarray, 
         labels: np.ndarray, 
-        format: str = "x1y1x2y2"):
+        format: str = "x1y1x2y2") -> float:
     """
     Calculates IoU for x1y1x2y2 or xywh bounding boxes
 
@@ -84,7 +84,7 @@ def calculate_iou(predictions: np.ndarray,
         format (str): x1y1x2y2 format by default, xywh (YOLO style)
 
     Returns:
-        numpy.ndarray: Intersection over union
+        float: Intersection over union
     """
 
     if format == "x1y1x2y2":
@@ -118,7 +118,7 @@ def calculate_iou(predictions: np.ndarray,
     box2_area = np.abs((box2_x2 - box2_x1) * (box2_y2 - box2_y1))
 
     iou = intersection / (box1_area + box2_area - intersection + 1e-6)
-    return iou.item()
+    return round(iou.item(), 2)
 
 
 def test_intersection_over_union():
@@ -177,7 +177,7 @@ Each bounding box will have a confidence level (how confident the model is for t
 
 ## So how does this work in practice?
 
-1. First of all we select the BB with the highest confidence level. In this examplethe one with 0.85 score.
+1. First of all we select the BB with the highest confidence level. In this example the one with 0.85 score.
 2. For the NMS we need to set a hyperparameter that will be used to compare this IoU. For our example let's select 0.4.
 3. Then we compare this BB to each individual other BB, and calculate the IoU as done above. 
 4. If the IoU is greater than the hyperparameter, then we discard the second box. 
@@ -197,9 +197,87 @@ End Result
 The concept is very simple, so let's do a code implementation of this:
 
 ```
+def non_max_suppressions(bboxes: List[np.array], 
+                        iou_threshold: int, 
+                        threshold: int) -> List[np.array]:
+    """
+    Non Max Suppression on a list of boxes
+
+    Parameters:
+        bboxes (numpy.ndarray): 2D array containing all bboxes. A box is predicted classe, probability score, x1y1x2y2
+        iou_threshold (float): threshold used to select which box to keep
+        threshold (float): min threshold to ignore predictions
+
+    Returns:
+        List[np.array]: Clean list of boxes
+    """
+    
+    assert isinstance(bboxes, np.ndarray)
+
+    bboxes = [box for box in bboxes if box[1] > threshold]
+    bboxes = sorted(bboxes, key=lambda x: x[1], reverse=True)
+    bboxes_after_nms = []
+
+    while bboxes:
+        chosen_box = bboxes.pop(0)
+
+        bboxes = [
+            box
+            for box in bboxes
+            if (box[0] != chosen_box[0]
+            or calculate_iou(
+                np.array([chosen_box[2:]]),
+                np.array([box[2:]])
+            )
+            > iou_threshold)
+        ]
+
+        bboxes_after_nms.append(chosen_box)
+    
+    return bboxes_after_nms
+
+# Test Case 1: Basic test case with no suppression
+def test_nms_no_suppression():
+    bboxes = np.array([
+        [0, 0.8, 10, 10, 20, 20],
+        [1, 0.7, 15, 15, 25, 25],
+        [2, 0.6, 30, 30, 40, 40]
+    ])
+    iou_threshold = 0.5
+    threshold = 0.5
+    result = nms(bboxes, iou_threshold, threshold)
+    assert np.allclose(result, bboxes)
+
+# Test Case 2: Test with IoU-based suppression
+def test_nms_with_suppression():
+    bboxes = np.array([
+        [0, 0.9, 10, 10, 20, 20],
+        [0, 0.8, 15, 15, 25, 25],  # Suppressed due to IoU with previous box
+        [1, 0.7, 20, 20, 30, 30],  # Not suppressed due to different class
+        [2, 0.6, 35, 35, 45, 45]
+    ])
+    iou_threshold = 0.5
+    threshold = 0.5
+    result = nms(bboxes, iou_threshold, threshold)
+    expected_result = np.array([
+        [0, 0.9, 10, 10, 20, 20],
+        [1, 0.7, 20, 20, 30, 30],
+        [2, 0.6, 35, 35, 45, 45]
+    ])
+    assert np.allclose(result, expected_result)
+
+
+
+# Run the test cases
+test_nms_no_suppression()
+test_nms_with_suppression()
+
+print("All test cases passed!")
 
 
 ```
+
+**OUTPUT: All test cases passed!**
 
 # HSV vs RGB
 
