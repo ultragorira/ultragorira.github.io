@@ -1,7 +1,7 @@
-# What is IoU (Intersection over Union), Non Max Suppression, HSV and RGB...Computer Vision is fun!
+# What is IoU (Intersection over Union), Non Max Suppression, HSV, RGB and Grayscale...Computer Vision is fun!
 
 There are many concepts in the field of Computer Vision to be aware of. 
-If you have worked with images, maybe not as an engineer but say about labelling images, you might have heard of terms such as Intersection over Union, or more commonly abbreviated as IoU, Non Max Suppression, HSV (Hue Saturation Value) or RGB. These are some basic but very important concepts that one should know about when talking about Computer Vision and ML/AI. So let's dive-in and hopefully you will know more about these concepts after reading throu this post. 
+If you have worked with images, maybe not as an engineer but say about labelling images, you might have heard of terms such as Intersection over Union, or more commonly abbreviated as IoU, Non Max Suppression, HSV (Hue Saturation Value), Grayscale or RGB. These are some basic but very important concepts that one should know about when talking about Computer Vision and ML/AI. So let's dive-in and hopefully you will know more about these concepts after reading throu this post. 
 
 # IoU
 
@@ -279,10 +279,10 @@ print("All test cases passed!")
 
 **OUTPUT: All test cases passed!**
 
-# HSV vs RGB
+# HSV vs RGB vs GrayScale (Binary)
 
-As final topic to conclude this blog, I wante to briefly discuss about RGB which probably most of the people have heard of and HSV, less likely. 
-RGB and HSV are two different color representations used in CV and image processing, and each has its own advantages for different tasks.
+As final topic to conclude this blog, I wanted to briefly discuss about RGB which probably most of the people have heard of and HSV, less likely and maybe Grey Scale even less.  
+All three are different color representations used in CV and image processing, and each has its own advantages for different tasks.
 
 ### RGB (Red, Green, Blue) ###
 
@@ -304,6 +304,9 @@ Saturation: It measures the intensity of the color and ranges from 0 (no color, 
 Value (Brightness): It represents the brightness of the color and ranges from 0 (black) to 100% (full brightness).
 Usage: HSV is particularly useful for tasks that involve color segmentation, object tracking, and image processing operations where you want to isolate or manipulate specific colors. It separates the color information from brightness, making it more robust to changes in lighting conditions.
 
+### Binary (Grayscale) ###
+
+Binary or grayscale images represent colors using shades of gray. In a grayscale image, each pixel has a single value representing its brightness, ranging from 0 (black) to 255 (white) in an 8-bit grayscale image.
 
 ## When to use each color model? ##
 
@@ -311,8 +314,70 @@ Usage: HSV is particularly useful for tasks that involve color segmentation, obj
 
 HSV instead is a better solution when your computer vision task requires distinguishing objects based on their color, or when you need to perform color-based segmentation, tracking, or any operation where color plays a crucial role in the analysis. HSV is less sensitive to changes in lighting conditions compared to RGB, which makes it more suitable for these tasks.
 
+Grayscale images are used when color information is not needed or when simplifying an image for certain types of analysis or processing.
+
 Let's make a simple example on this image:
 
+![Mask](/images/IOU/Mask.png)
+
+How can we detect the three different regions without doing anything complex? Which of the two color scales would make more sense now? 
+
+Let's try with Grayscale:
+
+```
+
+import cv2
+from PIL import Image
+
+image_path = ".\images\IOU\Mask.png"
+
+img = cv2.imread(image_path)
+
+for low_bound in [1, 150, 250]:
+
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+    _, mask = cv2.threshold(gray, low_bound, 255, cv2.THRESH_BINARY)
+
+    mask_to_image = Image.fromarray(mask).save(f"{low_bound}_mask.png")
+
+    contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    result_img = img.copy()
+    cv2.imwrite(f"{low_bound}_contour.png", cv2.drawContours(result_img, contours, -1, (0, 255, 0), 2))
+
+```
+
+So what is going on in here?
+
+First we read the mask image with cv2. 
+Then, we have a loop for binary values of 1, 150, 250. 
+Now remember, the image had black as background, which has 0 value in the grayscale. So in this particulare case, to detect the biggest figure, a value of 1 will do.
+The medium size figure has surely a higher value, and after a trail and error, it looks like the value of 150 was high enough to detect that particular area.
+The inner figure is white (255 on a the grayscale) so 250 will be enough to detect it.
+Then for each detection we output the mask and the overlay on the original image by drawing the contours in green.
+
+These are the outputs.
+
+### 1 value MASK and Contour
+
+![1mask](/images/IOU/1_mask.png)
+
+![1contour](/images/IOU/1_contour.png)
+
+
+### 150 value MASK and Contour
+
+![150mask](/images/IOU/150_mask.png)
+
+![150contour](/images/IOU/150_contour.png)
+
+### 250 value MASK and Contour
+
+![250mask](/images/IOU/250_mask.png)
+
+![250contour](/images/IOU/250_contour.png)
+
+Looks good!
 
 
 
