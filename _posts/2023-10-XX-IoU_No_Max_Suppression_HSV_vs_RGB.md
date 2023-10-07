@@ -320,7 +320,7 @@ Let's make a simple example on this image:
 
 ![Mask](/images/IOU/Mask.png)
 
-How can we detect the three different regions without doing anything complex? Which of the two color scales would make more sense now? 
+How can we detect the three different regions without doing anything complex? Which of the color scales would make more sense now? 
 
 Let's try with Grayscale:
 
