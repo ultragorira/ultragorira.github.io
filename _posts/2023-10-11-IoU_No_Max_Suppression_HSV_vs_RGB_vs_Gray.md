@@ -1,12 +1,12 @@
 # What is IoU (Intersection over Union), Non Max Suppression, HSV, RGB and Grayscale...Computer Vision is fun!
 
 There are many concepts in the field of Computer Vision to be aware of. 
-If you have worked with images, maybe not as an engineer but say about labelling images, you might have heard of terms such as Intersection over Union, or more commonly abbreviated as IoU, Non Max Suppression, HSV (Hue Saturation Value), Grayscale or RGB. These are some basic but very important concepts that one should know about when talking about Computer Vision and ML/AI. So let's dive-in and hopefully you will know more about these concepts after reading throu this post. 
+If you have worked with images, maybe not as an engineer, but maybe you had to label images, you might have heard of terms such as Intersection over Union, or more commonly abbreviated as IoU, Non Max Suppression, HSV (Hue Saturation Value), Grayscale or RGB. These are some basic but very important concepts that one should know about when talking about Computer Vision and ML/AI. So let's dive-in and hopefully you will know more about these concepts after reading through this post. 
 
 # IoU
 
 When a computer vision model does a detection of an object (a class) on an image with a bounding box, that's called a prediction. 
-In the field of ML/AI, labels (or ground-truth), are what the correct detection is for that object (class). Labels are used in a supervised training. Based on the accuracy of the prediction against the label, the loss in calculated and from there backpropagated to the neurons in all layers. That's often referret to as gradient descent. 
+In the field of ML/AI, labels (or ground-truth), are what the correct detection is for that object (class). Labels are used in a supervised training. Based on the accuracy of the prediction against the label, the loss in calculated and from there backpropagated to the neurons in all layers. That's often referred to as gradient descent. 
 
 ![Prediction_vs_GT](/images/IOU/Prediction.png) 
 
@@ -20,7 +20,7 @@ The **Union**, as it can be deduced from the word, it is the area combined of th
 
 ![Union](/images/IOU/Union.png)
 
-Mathematically speaking, the IoU formula is just the Intersection divided by Union. The result will be a value between 0 and 1. Value of 0 means the two boxes do not intersect at all and a value of 1 that they are identical (rare if not impossible). The higher the number the more accurate the prediction by the model, or annotation done by a human, is. When talking about IoU, values over 0.5 are considered as "almost acceptable", over .7 "good" and over 0.9 "great".
+Mathematically speaking, the IoU formula is just the Intersection divided by Union. The result will be a value between 0 and 1. Value of 0 means the two boxes do not intersect at all and a value of 1 that they are identical (rare if not impossible). The higher the number the more accurate the prediction by the model, or annotation done by a human, is. When talking about IoU, values over 0.5 are considered as "almost acceptable", over 0.7 "good" and over 0.9 "great".
 
 # How to calculate Intersection and Union areas
 
@@ -32,7 +32,7 @@ In computer vision the origin of the coordinates starts from left top corner. Th
 
 ![Coordinates_plan](/images/IOU/SD_Animal_Coordinates.png)
 
-X grows from left to right and Y grows from top to bottom. 
+X grows from left to right and Y grows from top to bottom in this plane.  
 
 Now keeping this in mind, we want to calculate the area of intersection in this image. Having just the top left corner and the bottom right corner will suffice. If you work with YOLO for example you will need a bit different approach, more on it later. 
 In our case then these coordinates would be the green top left corner (Label) and the yellow bottom right corner (prediction), like so:
@@ -65,7 +65,7 @@ X2, Y2 = OrangeX, PurpleY.
 
 Hopefully this concept is clear at this point. 
 
-The Union area is simply just summing up both bounding boxes (taken into condieration to remove the union, else you add it twice). 
+The Union area is simply just summing up both bounding boxes (taken into consideration to remove the union, else you add it twice). 
 
 Let's do a code implementation of the IoU:
 
@@ -165,7 +165,7 @@ Testing your code is probably one of the best thing you can do. Creating test ca
 
 # Non Max Suppression
 
-Non Max Suppression is a technique to clean up the detections done by a model when doing object detection. Since we have understood now what is IoU, the Non Max Suppression is related to it. So first of all, what do need by cleaning up the detections?
+Non Max Suppression is a technique to clean up the detections done by a model when doing object detection. Since we have understood now what is IoU, the Non Max Suppression is related to it. So first of all, what do mean by cleaning up the detections?
 
 ![NMS](/images/IOU/NMS.jpg)
 
@@ -222,15 +222,9 @@ def non_max_suppressions(bboxes: List[np.array],
         chosen_box = bboxes.pop(0)
 
         bboxes = [
-            box
-            for box in bboxes
-            if (box[0] != chosen_box[0]
-            or calculate_iou(
-                np.array([chosen_box[2:]]),
-                np.array([box[2:]])
-            )
-            > iou_threshold)
-        ]
+                    box for box in bboxes
+                    if (box[0] != chosen_box[0] or calculate_iou(np.array([chosen_box[2:]]),np.array([box[2:]]))> iou_threshold)
+                ]
 
         bboxes_after_nms.append(chosen_box)
     
@@ -281,17 +275,17 @@ print("All test cases passed!")
 
 # HSV vs RGB vs GrayScale (Binary)
 
-As final topic to conclude this blog, I wanted to briefly discuss about RGB which probably most of the people have heard of and HSV, less likely and maybe Grey Scale even less.  
+As final topic to conclude this blog post, I wanted to briefly discuss about RGB which probably most of the people have heard of and HSV, less likely and maybe Grey Scale even less.  
 All three are different color representations used in CV and image processing, and each has its own advantages for different tasks.
 
 ### RGB (Red, Green, Blue) ###
 
-Representation: RGB represents colors as combinations of red, green, and blue channels. Each pixel in an RGB image is described by three values, typically ranging from 0 to 255 for each channel, indicating the intensity of red, green, and blue light. Whenever you see an RGB image, you can think of it as an image made of 3 layers. Example:
+RGB represents colors as combinations of red, green, and blue channels. Each pixel in an RGB image is described by three values, typically ranging from 0 to 255 for each channel, indicating the intensity of red, green, and blue light. Whenever you see an RGB image, you can think of it as an image made of 3 layers. Example:
 
 ![RGB](/images/IOU/RGB.png)
 
 RGB is a widely used color model for displaying and capturing images. It is a straightforward representation of color and closely aligns with how our eyes perceive color, making it suitable for tasks like image display, visualization, and basic image processing operations. 
-You can imagine an image as a matrix with numbers, where each pixel is a pair of 3 numbers, 1 per channel. If you imagine a picture a matrix, you can already see that you could do some basic CV task by just working at pixel level.
+You can imagine an image as a matrix with numbers, where each pixel is a pair of 3 numbers, 1 per channel. If you imagine a picture as a matrix, you can already see that you could do some basic CV task by just working at pixel level.
 
 
 ### HSV (Hue, Saturation, Value) ###
@@ -299,10 +293,12 @@ You can imagine an image as a matrix with numbers, where each pixel is a pair of
 HSV represents colors based on three components:
 
 Hue: It represents the type of color (e.g., red, blue, yellow) and is represented as an angle around a color wheel, typically ranging from 0 to 360 degrees.
+
 Saturation: It measures the intensity of the color and ranges from 0 (no color, grayscale) to 100% (full color).
 
 Value (Brightness): It represents the brightness of the color and ranges from 0 (black) to 100% (full brightness).
-Usage: HSV is particularly useful for tasks that involve color segmentation, object tracking, and image processing operations where you want to isolate or manipulate specific colors. It separates the color information from brightness, making it more robust to changes in lighting conditions.
+
+HSV is particularly useful for tasks that involve color segmentation, object tracking, and image processing operations where you want to isolate or manipulate specific colors. It separates the color information from brightness, making it more robust to changes in lighting conditions.
 
 ### Binary (Grayscale) ###
 
