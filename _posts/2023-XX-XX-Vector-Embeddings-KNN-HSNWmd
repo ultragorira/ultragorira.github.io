@@ -129,7 +129,41 @@ There are various ways to calculate distances between two vector embeddings, and
     3. Sum up all the squared differences from i = 1 to i = n
     4. Calculate square root of the sum
 
-    This can be repreented as this:
+    This can be represented as this:
 
     ![Eucladian_graph](/images/VectorDB/Eucledian_distance_graph.png)
+
+
+2. **Cosine Similarity or Dissimilarity (Distance)**
+    - With Cosine Similarity it is measured the cosine of the angle between two vectors.
+    - Cosine Distance is just 1 - Cosine Similarity
+    - The range for Cosine Similarity is [-1, 1] where -1 is totally opposite vectors and +1 totally similar.
+    - The range for Cosine Distance is [0, 2], where 0 is identical vectors and 2 totally different. 
+
+    ![CosineSimilarity](/images/VectorDB/Cosine_Similarity.PNG)
+
+    Where A⋅B is the dot product of the vectors A and B
+
+    Where ∥A∥ is the magnitude of the vector A, and ∥B∥ for the B vector.
+
+    The formula then is the dot product of the vectors divided by the product of their magnitude.
+
+    ![CosineDistance](/images/VectorDB/Cosine_Distance.PNG)    
+
+    The cosine distance could be illustrated as follows:
+
+    ![CosineDistance_graph](/images/VectorDB/Cosine_distance_graph.png)
+
+3. **Manhattan (L1) Distance **
+    - The L1 Distance measures the distance between two points if it was only possible to move along one axis per time. You can imagine it as the distance along the grid lines of a rectangular grid, hence the name, from the layour of the streets in Manhattan. 
+    - The distance is given by the sum of the absolute differences between their corresponding elements. 
+
+    ![L1Distance](/images/VectorDB/L1Distance.PNG)
+
+    And it can be represented as this below:
+
+    ![L1Distance_graph](/images/VectorDB/L1_distance_graph.png)
+
+
+These are just some of the most common ways of calculating distances/similarities between vectors. There many more but I selected those I have used personally at work as well. 
 
