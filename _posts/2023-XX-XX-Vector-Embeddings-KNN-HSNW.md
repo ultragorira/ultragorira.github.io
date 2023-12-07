@@ -96,15 +96,15 @@ Let's now embed couple of sentences and visualize them to see how visually they 
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-sentences = ["The lion lives in the African Savana",
-             "Felines belong to the family of cats and the biggest ones are found in Africa",
-            "Polars is a Rust-based library that lets you handle data frigging fast"]
+sentences = ["Leonardo da Vinci (1452–1519) was a Renaissance polymath renowned for his diverse talents and contributions to art, science, and innovation. Widely considered one of the greatest artists in history, he created masterpieces such as the Mona Lisa and The Last Supper.",
+"Vinci's insatiable curiosity led him to make groundbreaking scientific observations and sketches in fields ranging from anatomy and engineering to astronomy, showcasing his remarkable intellect and leaving an indelible mark on both the arts and sciences.",
+"Gorillas are herbivorous, predominantly ground-dwelling great apes that inhabit the tropical forests of equatorial Africa"]
 
 embeddings = model.encode(sentences)
 
-for i, embedding in enumerate(embeddings)
-    sns.heatmap(embeddings[i].reshape(-1,384),cmap="Greys",center=0,square=False)
-    plt.gcf().set_size_inches(10,1)
+for i, embedding in enumerate(embeddings):
+    sns.heatmap(embeddings[i].reshape(-1,384),cmap="Reds",center=0,square=False)
+    plt.gcf().set_size_inches(24,1)
     plt.axis('off')
     plt.show()
 
@@ -114,7 +114,7 @@ for i, embedding in enumerate(embeddings)
 
 From the plot above you can kind of see that the two first sentences are having a somewhat similar raprensentation than the third one 
 
-## Measuring distance between embeddings
+## Measuring similarity/distance between embeddings
 
 There are various ways to calculate distances between two vector embeddings, and the choice often depends on the specific characteristics of the data and the problem you are trying to solve. Let's check some:
 
@@ -180,12 +180,12 @@ There are various ways to calculate distances between two vector embeddings, and
     In Python you can implement it like this:
 
     ```
-    cosine = 1 - np.dot(emb_A, emb_B)/(np.linalg.norm(emb_A)*np.linalg.norm(emb_B))
+    cosine = 1 - np.dot(emb_A, emb_B) / (np.linalg.norm(emb_A) * np.linalg.norm(emb_B))
     ```
 
 These are just some of the most common ways of calculating distances/similarities between vectors. There many more but I selected those I have used personally at work as well. 
 
-Let's test out if Cosine Distance actually gives us the right feedback we are looking for. First we create some embeddings from some sentences and then compare them each to the rest.
+Let's test out if Cosine Similarity actually gives us the right feedback we are looking for. First we create some embeddings from some sentences and then compare them each to the rest.
 
 ```
 import numpy as np
@@ -194,20 +194,63 @@ from itertools import combinations
 
 model = SentenceTransformer('paraphrase-MiniLM-L6-v2')
 
-sentences = ["The lion lives in the African Savana",
-             "Felines belong to the family of cats and the biggest ones are found in Africa",
-            "Polars is a Rust-based library that lets you handle data frigging fast"]
+sentences = ["Leonardo da Vinci (1452–1519) was a Renaissance polymath renowned for his diverse talents and contributions to art, science, and innovation. Widely considered one of the greatest artists in history, he created masterpieces such as the Mona Lisa and The Last Supper.",
+"Vinci's insatiable curiosity led him to make groundbreaking scientific observations and sketches in fields ranging from anatomy and engineering to astronomy, showcasing his remarkable intellect and leaving an indelible mark on both the arts and sciences.",
+"Gorillas are herbivorous, predominantly ground-dwelling great apes that inhabit the tropical forests of equatorial Africa"]
 
-def cosine_distance(vec1,vec2):
-  cosine = 1 - (np.dot(vec1, vec2)/(np.linalg.norm(vec1)*np.linalg.norm(vec2)))
-  return cosine
+
+def cosine_similarity(vec1: np.ndarray, vec2: np.ndarray):
+  cos_sim = (np.dot(vec1, vec2) / (np.linalg.norm(vec1) * np.linalg.norm(vec2)))
+  return cos_sim
 
 embeddings = model.encode(sentences)
 permuted_pairs = combinations(embeddings, 2)
 
 for pair in permuted_pairs:
-    print(cosine_distance(pair[0], pair[1]))
-    
+    print(cosine_similarity(pair[0], pair[1]))
 
 ```
+
+`Output`
+
+0.5847281
+
+-0.062435877
+
+-0.06368498
+
+The pairs combinations analysed are [[0, 1], [0, 2], [1, 2]] from the list. It is clear that when comparing the first sentence embedding against the third in the list OR the second to the third in the list, the values are negative, while when comparing the first to the second sentence, the cosine is positive and direction is towards 1. 
+
+Another example.
+
+```
+sentences = ["The enchanting display of colorful lights above the polar regions captivates onlookers, showcasing the splendid beauty of nature's cosmic ballet. The Northern Lights, or Aurora Borealis, mesmerize observers with their vibrant and ethereal dance in the night sky, a celestial phenomenon resulting from the interaction of charged particles with Earth's magnetic field.",
+"The enchanting display of colorful lights above the polar regions captivates onlookers, showcasing the splendid beauty of nature's cosmic ballet."
+             ]
+
+embeddings = model.encode(sentences)
+print(cosine_similarity(embeddings[0], embeddings[1]))
+
+```
+
+`Output`
+
+0.8375309
+
+The two sentences are of different length although both talk about the Aurora Borealis. Since the embeddings capture the meaning, we can see with the cosine similarity that the two are in fact close to each other. 
+
+## RAG (Retrieval Augmented Generation)
+
+The acronym RAG is surely something we all have heard in the past months and there's ton of material online available that explains how RAG works and all the techniques that can be used.
+At a basic level RAG allows you to retrieve information from a source based on a query/prompt you give.
+The source could be a series of documents, web pages, audio in the form of audio transcription etc.
+I actually had already created couple of implementations of this core idea of creating embeddings of a source and then query it:
+
+1. Langchain: https://ultragorira.github.io/2023/04/27/Langchain.html
+2. YouTube Querier: https://ultragorira.github.io/2023/06/08/YouTube_Querier_Langchain_and_Gradio.html
+
+The idea is to chunk the data into smaller pieces, create embeddings of each chunk, store the embeddings in a VectorDB, which could be Chroma, FAIS, Weaviate etc.
+When prompting the LLM, the query is also embedded and then the search is done at embeddings level.
+
+![RAG](/images/VectorDB/RAG.PNG)
 
