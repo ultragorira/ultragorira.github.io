@@ -254,3 +254,4 @@ When prompting the LLM, the query is also embedded and then the search is done a
 
 ![RAG](/images/VectorDB/RAG.PNG)
 
+In a Vector DB there will be stored the embeddings that can be retrieved in a number of ways, cosine similarity or other metrics are used. Algorithmically, K-Nearest Neighbor (KNN) or variants of it are used. 
