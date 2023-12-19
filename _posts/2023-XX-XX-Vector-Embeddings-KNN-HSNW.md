@@ -254,4 +254,65 @@ When prompting the LLM, the query is also embedded and then the search is done a
 
 ![RAG](/images/VectorDB/RAG.PNG)
 
-In a Vector DB there will be stored the embeddings that can be retrieved in a number of ways, cosine similarity or other metrics are used. Algorithmically, K-Nearest Neighbor (KNN) or variants of it are used. 
+In a Vector DB there will be stored the embeddings that can be retrieved in a number of ways, cosine similarity or other metrics are used. Algorithmically, K-Nearest Neighbor (KNN) or variants of it are used.
+
+### K-NN
+
+The most basic approach to go about K-NN is to comparing the query/prompt with all the embeddings found in the vector DB, sort by distance/similarity and take the top-K, where K could be 3 for example.
+
+This approach is extremely slow and has a Big O Notation of **O(n * d)**, where n is the num of embeddings and d is their dimensions. However, it is slow but very accurate. 
+
+### Hierarchical Navigable Small World (HNSW)
+
+In Similarity Search the metric that is mostly considered is Recall. A quicker although less precise method to retrieve embeddings is HNSW which is an algorithm for Approximate Nearest Neighbors (ANN). ANN is based on the idea of **Six Degreees of Separation**.
+
+The concept of "Six Degrees of Separation" is a social theory that suggests that any two people in the world can be connected to each other through a chain of acquaintances with no more than six intermediaries. In other words, everyone is at most six steps away from any other person on Earth.
+The theory became popularized through a small-world experiment conducted by social psychologist Stanley Milgram in the 1960s. In Milgram's experiment, participants were asked to send a letter to a target person (a specific individual chosen in the United States) through a chain of acquaintances. The participants were given the name and some background information about the target person and were instructed to send the letter to someone they knew who might be closer to the target. The chain continued until the letter reached the target person.
+
+Milgram found that the average number of intermediaries in the chains was surprisingly small, typically around six. This led to the formulation of the idea that social networks are highly interconnected, and it takes only a few steps to connect any two people.
+
+### What is a NSW
+
+NSW is a concept used in algorithms for approximate nearest neighbor search.
+The basic idea is to create a graph structure where each node is connected to its "navigable neighbors" in the high-dimensional space. This graph should exhibit the small-world property, meaning that nodes are well-connected, and it should be navigable, meaning that it allows for efficient exploration of the space.
+The algorithm aims to strike a balance between accuracy (finding neighbors that are close in the high-dimensional space) and efficiency (quickly navigating through the graph). Each nodes/vector is could be connected to each to max 6 other vectors but this number can vary of course. The key is to achieve a small average shortest path length between nodes, allowing for quick exploration of the space while maintaining connectivity. 
+
+How does it work?
+
+Let's assume we have this sort of graph:
+
+![NSW](/images/VectorDB/NSW.PNG)
+
+Each node in this graph is an embedding which could be for example chunk of a text but could be anything. For this case let's assume they are chunked texts from some corpus.
+
+To find the top-k we initialize the embedded query at a random position and do the following:
+
+- Compare the embedding of the Query to the Embedding of the randomly picked node, the comparison is calculate say the cosine similarity between the two.
+- The same is done with the connected nodes to this randomly picked node and see if there is better results. If yes, move to that node. Repeat until the connected neighbor are having worse score.
+- This process above is repeated from point 1 from different "entry points"
+- The scores are sorted and kept only top-K
+
+
+![NSW_Entry](/images/VectorDB/NSW_EntryPoint.PNG)
+
+![NSW_Entry](/images/VectorDB/NSW_EndPointPNG.PNG)
+
+
+The HNSW makes use of Skip-List which is a data structure that allows for efficient search, insertion, and deletion of elements in a sorted sequence.
+
+**Node Structure:**
+
+Each element in the Skip List is represented by a node.
+Each node contains a key (or value) and a forward pointer that points to the next node in the same level.
+
+
+**Levels:**
+
+A Skip List consists of multiple levels.
+The bottom level contains all the elements in sorted order.
+Higher levels include fewer elements, and each element in a higher level has a forward pointer that skips over some elements in the lower levels.
+
+**Tower Structure:**
+
+Nodes with more than one level form towers.
+The top level of the Skip List contains a single tower that spans the entire sorted sequence.
