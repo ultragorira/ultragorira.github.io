@@ -316,3 +316,19 @@ Higher levels include fewer elements, and each element in a higher level has a f
 
 Nodes with more than one level form towers.
 The top level of the Skip List contains a single tower that spans the entire sorted sequence.
+
+The HNSW is basically a combination of NSW and Skip List. 
+
+![HNSW](/images/VectorDB/HNSW_Pinecone.png)
+Photo taken from Pinecone: https://www.pinecone.io/learn/series/faiss/hnsw/
+
+The lower level is the dense level where there are more nodes and connections. The top level is the sparse level. 
+
+How does it work?
+
+As for the NSW, we have a random entry at the Sparse level (top one) and compare the similarity with its connections on the same level. Whichever has best score is selected and then we go to the lower level.
+The same similarity check is done at this level until we get the best one and then go lower. 
+We stop until the local best is found. 
+
+This is again repeated with different entry. 
+
