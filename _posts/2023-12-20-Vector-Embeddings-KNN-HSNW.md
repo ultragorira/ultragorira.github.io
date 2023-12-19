@@ -1,6 +1,6 @@
 # Embeddings, Vector Databases, RAG, KNN, Hierarchical Navigable Small World (HNSW)
 
-There is no doubt that the hype about LLMs is not going to stop anytime soon and whatever related to them, directly or indirectly, can be beneficial to learn about to not fall behind. One thing I have spent some time on lately is studying more about Embeddings and related topics such as Vector Databases, especially after taking the free course on [DeepLearning.AI about Vector DB with Weaviate](https://www.deeplearning.ai/short-courses/vector-databases-embeddings-applications/). So first of all, what is an embedding?
+There is no doubt that the hype about LLMs is not going to stop anytime soon and whatever related to them, directly or indirectly, can be beneficial to learn about not to fall behind. One thing I have spent some time on lately is exploring more about **Embeddings** and related topics such as Vector Databases, especially after taking the free course on [DeepLearning.AI about Vector DB with Weaviate](https://www.deeplearning.ai/short-courses/vector-databases-embeddings-applications/). So first of all, what is an embedding?
 
 
 ## What is an Embedding?
@@ -116,7 +116,7 @@ From the plot above you can kind of see that the two first sentences are having 
 
 ## Measuring similarity/distance between embeddings
 
-There are various ways to calculate distances between two vector embeddings, and the choice often depends on the specific characteristics of the data and the problem you are trying to solve. Let's check some:
+There are various ways to calculate distances/similarities between two vector embeddings, and the choice often depends on the specific characteristics of the data and the problem you are trying to solve. Let's check some:
 
 1. **Euclidean Distance:**
    - The Euclidean distance between two vectors A and B in an n-dimensional space is given by:
@@ -129,7 +129,7 @@ There are various ways to calculate distances between two vector embeddings, and
     3. Sum up all the squared differences from i = 1 to i = n
     4. Calculate square root of the sum
 
-    This can be represented as this:
+    This can be represented as this (for simplicity in a 2-D plane):
 
     ![Eucladian_graph](/images/VectorDB/Eucledian_distance_graph.png)
 
@@ -139,8 +139,8 @@ There are various ways to calculate distances between two vector embeddings, and
     np.linalg.norm((emb_A - emb_B), ord=2)
     ```
 
-2. **Manhattan (L1) Distance **
-    - The L1 Distance measures the distance between two points if it was only possible to move along one axis per time. You can imagine it as the distance along the grid lines of a rectangular grid, hence the name, from the layour of the streets in Manhattan. 
+2. **Manhattan (L1) Distance**
+    - The L1 Distance measures the distance between two points if it was only possible to move along one axis per time. You can imagine it as the distance along the grid lines of a rectangular grid, hence the name, from the layout of the streets in Manhattan. 
     - The distance is given by the sum of the absolute differences between their corresponding elements. 
 
     ![L1Distance](/images/VectorDB/L1Distance.PNG)
@@ -175,15 +175,15 @@ There are various ways to calculate distances between two vector embeddings, and
 
     ![CosineDistance_graph](/images/VectorDB/Cosine_distance_graph.png)
 
-    If were to talk about embeddings for words/text, words with same meaning would point towards the same direction in space (this if we assume we represent the embeddings in a 2-D plane, X and Y).
+    If we were to talk about embeddings for words/text, words with same meaning would point towards the same direction in space (this if we assume we represent the embeddings in a 2-D plane, X and Y).
 
     In Python you can implement it like this:
 
     ```
-    cosine = 1 - np.dot(emb_A, emb_B) / (np.linalg.norm(emb_A) * np.linalg.norm(emb_B))
+    cos_dis = 1 - np.dot(emb_A, emb_B) / (np.linalg.norm(emb_A) * np.linalg.norm(emb_B))
     ```
 
-These are just some of the most common ways of calculating distances/similarities between vectors. There many more but I selected those I have used personally at work as well. 
+These are just some of the most common ways of calculating distances/similarities between vectors. There are many more but I selected those I have used personally at work as well. 
 
 Let's test out if Cosine Similarity actually gives us the right feedback we are looking for. First we create some embeddings from some sentences and then compare them each to the rest.
 
@@ -237,7 +237,7 @@ print(cosine_similarity(embeddings[0], embeddings[1]))
 
 0.8375309
 
-The two sentences are of different length although both talk about the Aurora Borealis. Since the embeddings capture the meaning, we can see with the cosine similarity that the two are in fact close to each other. 
+The two sentences are of different length although both talk about the Aurora Borealis but with different words. Since the embeddings capture the meaning, we can see with the cosine similarity that the two are in fact close to each other. 
 
 ## RAG (Retrieval Augmented Generation)
 
@@ -275,7 +275,7 @@ Milgram found that the average number of intermediaries in the chains was surpri
 
 NSW is a concept used in algorithms for approximate nearest neighbor search.
 The basic idea is to create a graph structure where each node is connected to its "navigable neighbors" in the high-dimensional space. This graph should exhibit the small-world property, meaning that nodes are well-connected, and it should be navigable, meaning that it allows for efficient exploration of the space.
-The algorithm aims to strike a balance between accuracy (finding neighbors that are close in the high-dimensional space) and efficiency (quickly navigating through the graph). Each nodes/vector is could be connected to each to max 6 other vectors but this number can vary of course. The key is to achieve a small average shortest path length between nodes, allowing for quick exploration of the space while maintaining connectivity. 
+The algorithm aims to strike a balance between accuracy (finding neighbors that are close in the high-dimensional space) and efficiency (quickly navigating through the graph). Each nodes/vector can be connected to max 6 other vectors but this number can vary of course. The key is to achieve a small average shortest path length between nodes, allowing for quick exploration of the space while maintaining connectivity. 
 
 How does it work?
 
