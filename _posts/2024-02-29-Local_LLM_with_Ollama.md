@@ -1,28 +1,28 @@
 # Create your own local and private LLM with Ollama 
 
 The hype for LLM and Generative AI is not stopping at all and actually there is a continuous pushing of the boundaries of what's possible, see for example [Sora from OpenAI](https://openai.com/sora). That's just mind-blowing. 
-In this post though I wanted to keep it short and simple. I started to experiment more LLM models and compare them but one thing that I wanted to have was to have it running locally, privately, without paying any monthly fee. There are options available like LLM Studio but I wanted to build something simple myself. Here comes [Ollama](https://ollama.com/) to the rescue! 
+In this post, though, I wanted to keep it short and simple. I started to experiment more LLMs and compare them, but one thing that I wanted was to have it running locally, privately, without paying any monthly fee. There are options available, like LLM Studio, but I wanted to build something simple myself. Here comes [Ollama](https://ollama.com/) to the rescue! 
 
 
 ## What is Ollama?
 
 Ollama makes it very to run LLMs locally. Until January it was only available for MacOS and Linux but just recently, in February, they released the preview version for Windows as well. 
 
-The installation is pretty straight forward. Just download it and install it on your machine, in my case a Windows machine.
-Once installed you are free to download any of the models available. A list of all models can be found [here](https://ollama.com/library)
+The installation is pretty straightforward. Just download it and install it on your machine, in my case, a Windows machine.
+Once installed, you are free to download any of the models available. A list of all models can be found [here](https://ollama.com/library)
 
 ### Downloading a model
 
-The way you download a model is through terminal by typing the following command
+To download a model, use the terminal by typing the following command:
 
 ```
 ollama pull [model]
 ```
-For example as my first model I download Mistral (7B). Depending on the hardware you have available you are able to run smaller or bigger models. Based on the GitHub page these are the RAM needs:
+For example, as my first model I download Mistral (7B). Depending on the hardware you have available, you can run smaller or bigger models. Based on the GitHub page, these are the RAM needs:
 
-**ou should have at least 8 GB of RAM available to run the 7B models, 16 GB to run the 13B models, and 32 GB to run the 33B models.**
+**You should have at least 8 GB of RAM available to run the 7B models, 16 GB to run the 13B models, and 32 GB to run the 33B models.**
 
-Yes, you can run models also on CPU. However, having a GPU does make it a nicer experience as Ollama does have a built-in GPU accelerator. 
+Yes, you can run models also on CPU. However, having a GPU does make it a nicer experience, as Ollama does have a built-in GPU accelerator. 
 
 ### Inference to a model
 
@@ -140,6 +140,6 @@ Let's see it in action!
 
 
 
-Note that this machine has NVIDIA RTX 2070 Max-Q (about 4 years old).
+**Note that this machine has NVIDIA RTX 2070 Max-Q (about 4 years old).**
 
 It's just crazy to think that just a year ago the only LLM available was ChatGPT and now you can do your own locally and privately. The future is bright!
