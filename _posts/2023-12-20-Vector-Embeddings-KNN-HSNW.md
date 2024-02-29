@@ -112,7 +112,7 @@ for i, embedding in enumerate(embeddings):
 
 ![Embeddings_plot](/images/VectorDB/Embeddings_plot.png)
 
-From the plot above you can kind of see that the two first sentences are having a somewhat similar raprensentation than the third one 
+From the plot above you can kind of see that the two first sentences are having a somewhat similar representation than the third one 
 
 ## Measuring similarity/distance between embeddings
 
