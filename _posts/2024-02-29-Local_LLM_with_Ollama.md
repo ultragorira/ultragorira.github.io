@@ -135,6 +135,10 @@ Note that in the dropdown you will see the models available within your system d
 Let's see it in action!
 
 
+
+https://github.com/ultragorira/ultragorira.github.io/assets/62200472/18004937-adfe-4710-a782-4b23bfe869d0
+
+
 Note that this machine has NVIDIA RTX 2070 Max-Q (about 4 years old).
 
 It's just crazy to think that just a year ago the only LLM available was ChatGPT and now you can do your own locally and privately. The future is bright!
