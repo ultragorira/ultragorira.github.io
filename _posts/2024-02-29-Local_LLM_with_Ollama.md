@@ -143,3 +143,6 @@ Let's see it in action!
 **Note that this machine has NVIDIA RTX 2070 Max-Q (about 4 years old).**
 
 It's just crazy to think that just a year ago the only LLM available was ChatGPT and now you can do your own locally and privately. The future is bright!
+
+
+Note that if you have Docker and want a much more similar experience to what you get with ChatGPT web UI, you can just go ahead with open web UI: https://github.com/open-webui/open-webui
