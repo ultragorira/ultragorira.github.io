@@ -41,3 +41,24 @@ torch.int64 (64-bit signed integers)
 torch.uint8 (8-bit unsigned integers)
 
 You can look at the ranges by using torch.iinfo(torch.int8) for example => iinfo(min=0, max=255, dtype=uint8)
+
+So why bringing up this distinction? Simply put the main purpose of bringing up the distinction between floating-point numbers and integers is to highlight the core concept of quantization. Quantization aims to reduce the number of bits required to represent the values in a model, and so to a smaller range of integer values. The end-result is a reduced memory footprint and potentially accelerating computations.
+By converting floating-point numbers to integers, quantization takes advantage of the more compact and computationally efficient nature of integers. 
+
+# Where Quantization is applied
+
+In a simple neural network composed of stacked linear layers, each layer consists of matrices, namely weight and bias matrices. These matrices typically store their values in floating-point format to maintain high precision. This is where quantization comes into play, aiming to convert the floating-point values to integers.
+
+The quantization process in a neural network involves the following steps for each layer:
+
+1. Quantize the input: Convert the floating-point input values to integer values.
+
+2. Quantize the weights and biases: Convert the floating-point weight and bias values to integer values.
+
+3. Perform the calculation: Execute the matrix multiplications and other operations using the quantized integer values.
+
+4. Dequantize the output: Convert the integer output values back to floating-point values, which can then be fed to the next layer.
+
+
+Here's a visual example:
+
