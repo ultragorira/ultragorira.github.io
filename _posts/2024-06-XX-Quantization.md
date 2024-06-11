@@ -66,4 +66,63 @@ Here's a visual example:
 
 The above is just an example of how a matrix that has floating point values is quantized to a range between -128 to 127. The same is the dequantized. In the original matrix, each value takes up 4 bytes, so 32 bit. In the quantized matrix each value takes up 8 bit.
 You can see that some values have slightly changed, meaning we lost some precision. so the model will not be as accurate as the not quantized one.
- 
+
+In terms of value ranges, there are two types of quantization: asymmetric and symmetric.
+
+Asymmetric quantization maps floating-point values to unsigned integer values, typically in the range of 0 to 255 (for 8-bit quantization). This type of quantization is well-suited for data with a non-zero minimum value or where the zero value has a special meaning.
+
+Symmetric quantization maps floating-point values to signed integer values, typically in the range of -127 to 127 (for 8-bit quantization). In this case, the zero value in the original matrix or tensor remains zero after quantization
+
+
+## Symmetric Quantization
+The symmetric quantization process can be expressed as follows:
+
+1. Calculate the scale factor $\alpha$
+
+$$
+\alpha = \frac{\max(|x|)}{2^{b-1} - 1}
+$$
+
+where $x$ is the input tensor, $b$ is the number of bits used for quantization, and $\max(|x|)$ is the maximum absolute value of $x$.
+
+2. Quantize the input tensor $x$ to produce the quantized tensor $x\_q$:
+
+
+$$
+x\_q = \operatorname{clamp}\left(\left\lfloor \frac{x}{\alpha} \right\rfloor, -2^{b-1}, 2^{b-1} - 1\right)
+
+$$
+
+where $\lfloor \cdot \rfloor$ is the floor function, and $\text{clamp}(\cdot, a, b)$ is a function that clamps its input to the range $[a, b]$.
+
+
+```
+
+
+
+```
+
+
+## Asymmetric Quantization
+
+The asymmetric quantization process can be expressed as follows:
+
+1. Calculate the scale factor $\alpha$ and the zero point $z$:
+
+$$
+\begin{align}
+\alpha &= \frac{\max(x) - \min(x)}{2^b - 1} \\
+
+z &= -\left\lfloor \frac{\min(x)}{\alpha} \right\rfloor
+\end{align}
+$$
+
+where $x$ is the input tensor, $b$ is the number of bits used for quantization, $\max(x)$ is the maximum value of $x$, and $\min(x)$ is the minimum value of $x$.
+
+2. Quantize the input tensor $x$ to produce the quantized tensor $x\_q$:
+
+$$
+x\_q = \text{clamp}\left(\left\lfloor \frac{x}{\alpha} + z \right\rfloor, 0, 2^b - 1\right)
+$$
+
+where $\lfloor \cdot \rfloor$ is the floor function, and $\text{clamp}(\cdot, a, b)$ is a function that clamps its input to the range $[a, b]$.
