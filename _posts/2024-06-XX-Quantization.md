@@ -62,3 +62,8 @@ The quantization process in a neural network involves the following steps for ea
 
 Here's a visual example:
 
+![quantize_dequantize](/images/Quantization/Quantize_Dequantize.PNG)
+
+The above is just an example of how a matrix that has floating point values is quantized to a range between -128 to 127. The same is the dequantized. In the original matrix, each value takes up 4 bytes, so 32 bit. In the quantized matrix each value takes up 8 bit.
+You can see that some values have slightly changed, meaning we lost some precision. so the model will not be as accurate as the not quantized one.
+ 
