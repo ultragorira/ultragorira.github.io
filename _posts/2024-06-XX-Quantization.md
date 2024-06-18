@@ -348,3 +348,12 @@ q_error = quantization_error(original_tensor, deq_tensor)
 
 0.24344968795776367
 ```
+
+
+
+## QAT (Quantization Aware Training)
+
+
+## PTQ (Post Training Quantization)
+
+
