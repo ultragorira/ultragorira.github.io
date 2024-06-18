@@ -306,7 +306,7 @@ Asymmetric scale: 2.2358081340789795,
 Zero: 87
 tensor([ 87,  84,   9,   0, 165, 255,  74,  23, 203,  61])
 ```
-Here you can see that the 0 is not anymore 0 but 87.
+Here you can see that the 0 is not anymore 0 but 87. The max value is 255. 
 
 As for the symmetric quantization, let's dequantized the asymmetric quantized tensor:
 
