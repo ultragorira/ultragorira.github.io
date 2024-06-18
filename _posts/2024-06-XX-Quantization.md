@@ -95,13 +95,153 @@ $$
 
 where $\lfloor \cdot \rfloor$ is the floor function, and $\text{clamp}(\cdot, a, b)$ is a function that clamps its input to the range $[a, b]$.
 
+Now, let's see in code how this works.
+
+```
+import torch
+
+original_tensor = torch.randn(10) * 200 + 50
+print(f"Max value: {original_tensor.max()}")
+print(f"Min value: {original_tensor.min()}")
+
+#Set 0 as first element
+original_tensor[0] = 0
+```
+
+Output:
+
+```
+Max value: 376.07928466796875
+Min value: -194.05178833007812
+```
+
+Let's look at the tensor:
+
+```
+tensor([   0.0000,   -7.2955, -174.8314, -194.0518,  174.6870,  376.0793,
+         -29.7248, -143.4094,  260.2398,  -57.8868])
+```
+
+Based on the formula for the Symmetric Quantization, we need a clamp function:
+
+```
+def clamp(params_q: torch.Tensor, lower_bound: float, upper_bound: float) -> torch.Tensor:
+    """
+    Clamp all elements in the tensor to a minimum and maximum value.
+
+    Args:
+        params_q (torch.Tensor): The input tensor.
+        lower_bound (float): The minimum value.
+        upper_bound (float): The maximum value.
+
+    Returns:
+        torch.Tensor: A tensor with the same shape as `params_q` where all elements are in the range [`lower_bound`, `upper_bound`].
+    """
+    return torch.clamp(params_q, lower_bound, upper_bound)
+```
+
+And let's write the symetric quantization which will return the quantized tensor and the scale
+
+```
+def symmetric_quantization(params: torch.Tensor, bits: int) -> tuple[torch.Tensor, float]:
+    """
+    Quantize the input tensor using symmetric quantization.
+
+    Args:
+        params (torch.Tensor): The input tensor.
+        bits (int): The number of bits to use for quantization.
+
+    Returns:
+        tuple[torch.Tensor, float]: A tuple containing the quantized tensor and the scale factor.
+    """
+    alpha = torch.max(torch.abs(params))
+    scale = alpha / (2**(bits-1)-1)
+    lower_bound = -2**(bits-1)
+    upper_bound = 2**(bits-1)-1
+    quantized = clamp(torch.round(params / scale), lower_bound, upper_bound).long()
+    return quantized, scale
+```
+
+Now let's call the symmetric_quantization function and pass the tensor and the bits as 8:
+
+```
+symmetric_q_tensor, symmetric_scale = symmetric_quantization(original_tensor, 8)
 
 ```
 
+This results into:
 
+```
+Symmetric scale: 2.961254119873047
+tensor([  0,  -2, -59, -66,  59, 127, -10, -48,  88, -20])
+```
+Here the 0 remains the same as in the original tensor. 
+
+How about going back, dequantize the tensor? Let's write a small function for it:
+
+```
+def symmetric_dequantize(params_q: torch.Tensor, scale: float) -> torch.Tensor:
+    """
+    Dequantize the input tensor using symmetric dequantization.
+
+    Args:
+        params_q (torch.Tensor): The input tensor.
+        scale (float): The scale factor.
+
+    Returns:
+        torch.Tensor: The dequantized tensor.
+    """
+    return params_q.float() * scale
+```
+
+When calling this function with the symmetric_q tensor, we get back this:
+
+```
+deq_tensor = symmetric_dequantize(symmetric_q_tensor, symmetric_scale)
 
 ```
 
+```
+ tensor([   0.0000,   -5.9225, -174.7140, -195.4428,  174.7140,  376.0793,
+         -29.6125, -142.1402,  260.5904,  -59.2251])
+```
+
+Let's put this dequantized and original tensors close to each other:
+
+```
+Original: tensor([   0.0000,   -7.2955, -174.8314, -194.0518,  174.6870,  376.0793,
+         -29.7248, -143.4094,  260.2398,  -57.8868])
+
+Dequantized_symmetric:  tensor([   0.0000,   -5.9225, -174.7140, -195.4428,  174.7140,  376.0793,
+         -29.6125, -142.1402,  260.5904,  -59.2251])
+```
+
+Here you can see some numbers match, some are different. Let's calculate the 
+
+```
+def quantization_error(original_tensor: torch.Tensor, deq_tensor: torch.Tensor) -> float:
+    """
+    Calculate the mean squared error between the original and the dequantized values.
+
+    Args:
+        original_tensor (torch.Tensor): The original tensor.
+        deq_tensor (torch.Tensor): The dequantized tensor.
+
+    Returns:
+        float: The mean squared error.
+    """
+    return torch.mean((original_tensor - deq_tensor)**2)
+
+```
+
+And let's call it
+
+```
+q_error = quantization_error(original_tensor, deq_tensor)
+
+
+0.7371761798858643
+```
 
 ## Asymmetric Quantization
 
@@ -126,3 +266,85 @@ x\_q = \text{clamp}\left(\left\lfloor \frac{x}{\alpha} + z \right\rfloor, 0, 2^b
 $$
 
 where $\lfloor \cdot \rfloor$ is the floor function, and $\text{clamp}(\cdot, a, b)$ is a function that clamps its input to the range $[a, b]$.
+
+As for the symmetric quantization, let's see how to implement it in code
+
+```
+def asymmetric_quantization(params: torch.Tensor, bits: int) -> tuple[torch.Tensor, float, int]:
+    """
+    Quantize the input tensor using asymmetric quantization.
+
+    Args:
+        params (torch.Tensor): The input tensor.
+        bits (int): The number of bits to use for quantization.
+
+    Returns:
+        tuple[torch.Tensor, float, int]: A tuple containing the quantized tensor, the scale factor, and the zero point.
+    """
+    alpha = params.max()
+    beta = params.min()
+    scale = (alpha - beta) / (2**bits-1)
+    zero = -1*torch.round(beta / scale)
+    lower_bound, upper_bound = 0, 2**bits-1
+    quantized = clamp(torch.round(params / scale + zero), lower_bound, upper_bound).long()
+    return quantized, scale, zero
+
+```
+
+This function will return the quantized tensor, the scale and the zero. For the clamp we use the same function as before.
+
+Let's run the function with the same original tensor:
+
+```
+asymmetric_q_tensor, asymmetric_scale, asymmetric_zero = asymmetric_quantization(original_tensor, 8)
+```
+
+Which results into the below:
+
+```
+Asymmetric scale: 2.2358081340789795, 
+Zero: 87
+tensor([ 87,  84,   9,   0, 165, 255,  74,  23, 203,  61])
+```
+Here you can see that the 0 is not anymore 0 but 87.
+
+As for the symmetric quantization, let's dequantized the asymmetric quantized tensor:
+
+```
+def asymmetric_dequantize(asym_q_tensor: torch.Tensor, scale: float, zero: int) -> torch.Tensor:
+    """
+    Dequantize the input tensor using asymmetric dequantization.
+
+    Args:
+        asym_q_tensor (torch.Tensor): The input tensor.
+        scale (float): The scale factor.
+        zero (int): The zero point.
+
+    Returns:
+        torch.Tensor: The dequantized tensor.
+    """
+    return (asym_q_tensor.float() - zero) * scale
+```
+
+And call it on the asymmetric quantized tensor and put it next to the original tensor:
+
+```
+deq_tensor = asymmetric_dequantize(asymmetric_q_tensor, asymmetric_scale, asymmetric_zero)
+```
+
+```
+Original: tensor([   0.0000,   -7.2955, -174.8314, -194.0518,  174.6870,  376.0793,
+         -29.7248, -143.4094,  260.2398,  -57.8868])
+
+Dequantized_Asymmetric: tensor([   0.0000,   -6.7074, -174.3930, -194.5153,  174.3930,  375.6158,
+         -29.0655, -143.0917,  259.3537,  -58.1310])
+
+```
+
+Also in this case some values match and some are a bit different. Let's calculate the error:
+
+```
+q_error = quantization_error(original_tensor, deq_tensor)
+
+0.24344968795776367
+```
