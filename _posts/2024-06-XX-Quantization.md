@@ -438,10 +438,20 @@ def evaluate(model, data_loader, device):
 
 ```
 
+Let's also create a small function that retuns the model size
+
+```
+def get_model_size(model):
+    torch.save(model.state_dict(), "temp.p")
+    size = os.path.getsize("temp.p")
+    os.remove('temp.p')
+    return size
+```
+
 Time to instantiate the model and loaders
 
 ```
-device = "cuda" if torch.cuda.is_available() else "cpu"
+device = "cpu"
 model = MNISTModel()
 model.to(device)
 train_loader, test_loader = load_mnist()
@@ -467,49 +477,62 @@ The original separate modules are replaced with these fused modules in the model
 
 It's worth noting that not all combinations of layers can be fused. Common fusible patterns include Conv2d+BatchNorm2d+ReLU, Conv2d+BatchNorm2d, Conv2d+ReLU, and Linear+ReLU.
 
+Now we set the backend and quantization configuration and prepare the model
+
 ```
-# Set the backend and quantization configuration
+
 torch.backends.quantized.engine = 'qnnpack'
 model.qconfig = torch.quantization.get_default_qconfig('qnnpack')
-
 # Prepare the model for quantization
 model_prepared = torch.quantization.prepare(model)
 
-# Calibrate the model
+```
+
+
+We calibrate the model now like so:
+
+```
 model_prepared.eval()
 with torch.no_grad():
     for inputs, _ in train_loader:
         model_prepared(inputs)
 
-# Convert the model to quantized version
-model_quantized = torch.quantization.convert(model_prepared)
+```
 
-# Compare model sizes
-def get_model_size(model):
-    torch.save(model.state_dict(), "temp.p")
-    size = os.path.getsize("temp.p")
-    os.remove('temp.p')
-    return size
-
-print(f"Original model size: {get_model_size(model) / 1e6:.2f} MB")
-print(f"Quantized model size: {get_model_size(model_quantized) / 1e6:.2f} MB")
-
-# Evaluate both models
-print(f"Original model accuracy: {evaluate(model, test_loader, device):.4f}")
-print(f"Quantized model accuracy: {evaluate(model_quantized, test_loader, device):.4f}")
-
-# Inference example
-example_input, _ = next(iter(test_loader))
-example_input = example_input[0].unsqueeze(0)  # Get a single image and add batch dimension
-
-output_original = model(example_input)
-output_quantized = model_quantized(example_input)
-
-print("Original output shape:", output_original.shape)
-print("Quantized output shape:", output_quantized.shape)
-
-# Compare outputs
-print("Mean absolute difference:", torch.mean(torch.abs(output_original - output_quantized)))
-print("Max absolute difference:", torch.max(torch.abs(output_original - output_quantized)))
+We now convert the model to quantized version
 
 ```
+model_quantized = torch.quantization.convert(model_prepared)
+```
+
+Let's print out the sizes of both original and quantized model:
+
+
+```
+print(f"Original model size: {get_model_size(model) / 1e6:.2f} MB")
+print(f"Quantized model size: {get_model_size(model_quantized) / 1e6:.2f} MB")
+```
+
+Original model size: 0.58 MB
+Quantized model size: 0.15 MB
+
+Let's evaluate both models on the 
+
+```
+print("Evaluating original model...")
+original_accuracy = evaluate(model, test_loader, device)
+print(f"Original model accuracy: {original_accuracy:.4f}")
+
+print("\nEvaluating quantized model...")
+quantized_accuracy = evaluate(model_quantized, test_loader, device)
+print(f"Quantized model accuracy: {quantized_accuracy:.4f}")
+
+```
+
+Evaluating original model...
+Original model accuracy: 0.0787
+
+Evaluating quantized model...
+Quantized model accuracy: 0.0788
+
+The accuracy difference is almost non-existent although this is just a very basic NN. 
