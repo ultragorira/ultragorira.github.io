@@ -349,11 +349,167 @@ q_error = quantization_error(original_tensor, deq_tensor)
 0.24344968795776367
 ```
 
+# Common Quantization Techniques
 
+Below are listed common quantization techniques briefly explained. 
 
 ## QAT (Quantization Aware Training)
 
+QAT involves simulating quantization during the training process, allowing the model to learn to be robust to the quantization noise. This method typically provides better performance compared to PTQ, especially in terms of maintaining model accuracy after quantization. Both symmetric and asymmetric quantization can be utilized in QAT.
 
 ## PTQ (Post Training Quantization)
 
+PTQ involves quantizing a pre-trained model without further training. This method is typically used for its simplicity and quick implementation. In PTQ, both symmetric and asymmetric quantization can be applied to the weights and activations of the network.
 
+## Dynamic Quantization
+
+Dynamic Quantization is a technique where quantization is applied at runtime, particularly to activations. The weights are typically quantized ahead of time, but the activations are quantized on-the-fly during inference. This method is particularly useful for models with varying input sizes or dynamic computational graphs, such as recurrent neural networks (RNNs) and transformer models. Dynamic Quantization offers a balance between model size reduction and computational efficiency, often with less impact on accuracy compared to static quantization methods.
+
+Let's take a look at how PTQ can be applied to a simple Neural Net.
+First we import the needed libraries
+
+```
+import torch
+import torch.nn as nn
+import torch.quantization
+import torchvision
+import torchvision.transforms as transforms
+from torch.utils.data import DataLoader
+import os
+
+```
+
+Let's define the model that will handle the famous MNIST dataset.
+
+
+```
+class MNISTModel(nn.Module):
+    def __init__(self):
+        super(MNISTModel, self).__init__()
+        self.quant = torch.quantization.QuantStub()
+        self.conv1 = nn.Conv2d(1, 32, 3, padding=1)
+        self.relu1 = nn.ReLU()
+        self.conv2 = nn.Conv2d(32, 64, 3, padding=1)
+        self.relu2 = nn.ReLU()
+        self.pool = nn.MaxPool2d(2, 2)
+        self.flatten = nn.Flatten()
+        self.fc = nn.Linear(64 * 14 * 14, 10)
+        self.dequant = torch.quantization.DeQuantStub()
+
+    def forward(self, x):
+        x = self.quant(x)
+        x = self.relu1(self.conv1(x))
+        x = self.pool(self.relu2(self.conv2(x)))
+        x = self.flatten(x)
+        x = self.fc(x)
+        x = self.dequant(x)
+        return x
+
+```
+
+Let's load the MNIST dataset and define the train, test dataset and loaders
+
+```
+def load_mnist(batch_size=64):
+    transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.1307,), (0.3081,))])
+    train_dataset = torchvision.datasets.MNIST(root='./data', train=True, download=True, transform=transform)
+    test_dataset = torchvision.datasets.MNIST(root='./data', train=False, download=True, transform=transform)
+    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+    test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
+    return train_loader, test_loader
+
+```
+
+As we will need to evaluate how the model peforms with quantization, let's define a function for evaluation.
+
+```
+def evaluate(model, data_loader, device):
+    model.eval()
+    correct = 0
+    total = 0
+    with torch.no_grad():
+        for inputs, labels in data_loader:
+            inputs, labels = inputs.to(device), labels.to(device)
+            outputs = model(inputs)
+            _, predicted = outputs.max(1)
+            total += labels.size(0)
+            correct += predicted.eq(labels).sum().item()
+    return correct / total
+
+```
+
+Time to instantiate the model and loaders
+
+```
+device = "cuda" if torch.cuda.is_available() else "cpu"
+model = MNISTModel()
+model.to(device)
+train_loader, test_loader = load_mnist()
+```
+
+The line below is performing module fusion, which is an important optimization step in the quantization process.
+
+```
+model = torch.quantization.fuse_modules(model, [['conv1', 'relu1'], ['conv2', 'relu2']])
+```
+
+Why doing model fusion?
+
+Module fusion is an optimization technique that combines multiple operations into a single operation.
+This can improve both the performance and the numerical precision of the quantized model.
+In this case, we're fusing two pairs of layers:
+
+'conv1' (convolution) with 'relu1' (ReLU activation)
+'conv2' (convolution) with 'relu2' (ReLU activation)
+
+The function creates new modules that combine the operations of the fused layers.
+The original separate modules are replaced with these fused modules in the model's structure.
+
+It's worth noting that not all combinations of layers can be fused. Common fusible patterns include Conv2d+BatchNorm2d+ReLU, Conv2d+BatchNorm2d, Conv2d+ReLU, and Linear+ReLU.
+
+```
+# Set the backend and quantization configuration
+torch.backends.quantized.engine = 'qnnpack'
+model.qconfig = torch.quantization.get_default_qconfig('qnnpack')
+
+# Prepare the model for quantization
+model_prepared = torch.quantization.prepare(model)
+
+# Calibrate the model
+model_prepared.eval()
+with torch.no_grad():
+    for inputs, _ in train_loader:
+        model_prepared(inputs)
+
+# Convert the model to quantized version
+model_quantized = torch.quantization.convert(model_prepared)
+
+# Compare model sizes
+def get_model_size(model):
+    torch.save(model.state_dict(), "temp.p")
+    size = os.path.getsize("temp.p")
+    os.remove('temp.p')
+    return size
+
+print(f"Original model size: {get_model_size(model) / 1e6:.2f} MB")
+print(f"Quantized model size: {get_model_size(model_quantized) / 1e6:.2f} MB")
+
+# Evaluate both models
+print(f"Original model accuracy: {evaluate(model, test_loader, device):.4f}")
+print(f"Quantized model accuracy: {evaluate(model_quantized, test_loader, device):.4f}")
+
+# Inference example
+example_input, _ = next(iter(test_loader))
+example_input = example_input[0].unsqueeze(0)  # Get a single image and add batch dimension
+
+output_original = model(example_input)
+output_quantized = model_quantized(example_input)
+
+print("Original output shape:", output_original.shape)
+print("Quantized output shape:", output_quantized.shape)
+
+# Compare outputs
+print("Mean absolute difference:", torch.mean(torch.abs(output_original - output_quantized)))
+print("Max absolute difference:", torch.max(torch.abs(output_original - output_quantized)))
+
+```
