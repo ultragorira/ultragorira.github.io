@@ -79,21 +79,19 @@ The symmetric quantization process can be expressed as follows:
 
 1. Calculate the scale factor $\alpha$
 
-$$
-\alpha = \frac{\max(|x|)}{2^{b-1} - 1}
-$$
+   $$
+   \alpha = \frac{\max(|x|)}{2^{b-1} - 1}
+   $$
 
-where $x$ is the input tensor, $b$ is the number of bits used for quantization, and $\max(|x|)$ is the maximum absolute value of $x$.
+   where $x$ is the input tensor, $b$ is the number of bits used for quantization, and $\max(|x|)$ is the maximum absolute value of $x$.
 
-2. Quantize the input tensor $x$ to produce the quantized tensor $x\_q$:
+2. Quantize the input tensor $x$ to produce the quantized tensor $x_q$:
 
+   $$
+   x_q = \operatorname{clamp}\left(\left\lfloor \frac{x}{\alpha} \right\rfloor, -2^{b-1}, 2^{b-1} - 1\right)
+   $$
 
-$$
-x\_q = \operatorname{clamp}\left(\left\lfloor \frac{x}{\alpha} \right\rfloor, -2^{b-1}, 2^{b-1} - 1\right)
-
-$$
-
-where $\lfloor \cdot \rfloor$ is the floor function, and $\text{clamp}(\cdot, a, b)$ is a function that clamps its input to the range $[a, b]$.
+   where $\lfloor \cdot \rfloor$ is the floor function, and $\operatorname{clamp}(\cdot, a, b)$ is a function that clamps its input to the range $[a, b]$.
 
 Now, let's see in code how this works.
 
