@@ -76,7 +76,7 @@ Symmetric quantization maps floating-point values to signed integer values, typi
 
 ## Symmetric Quantization
 The symmetric quantization process can be expressed as follows:
-$$ \nabla_\boldsymbol{x} J(\boldsymbol{x}) $$
+
 1. Calculate the scale factor $\alpha$
 
    $$
