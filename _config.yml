@@ -19,7 +19,7 @@ linkedin_username: "lorisdeluca"
 ######### Nothing below needs to be changed (unless you know what you're doing) #########
 #########################################################################################
 theme: "minima"
-
+markdown: kramdown
 rss: rss
 
 kramdown:

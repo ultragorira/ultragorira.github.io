@@ -261,13 +261,13 @@ where $x$ is the input tensor, $b$ is the number of bits used for quantization, 
 
 2. Quantize the input tensor $x$ to produce the quantized tensor $x\_q$:
 
-```
+
 
 $$
 x\_q = \text{clamp}\left(\left\lfloor \frac{x}{\alpha} + z \right\rfloor, 0, 2^b - 1\right)
 $$
 
-```
+
 
 where $\lfloor \cdot \rfloor$ is the floor function, and $\text{clamp}(\cdot, a, b)$ is a function that clamps its input to the range $[a, b]$.
 
