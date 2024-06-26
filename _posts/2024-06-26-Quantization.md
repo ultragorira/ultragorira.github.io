@@ -216,7 +216,7 @@ Dequantized_symmetric:  tensor([   0.0000,   -5.9225, -174.7140, -195.4428,  174
          -29.6125, -142.1402,  260.5904,  -59.2251])
 ```
 
-Here you can see some numbers match, some are different. Let's calculate the 
+Here you can see some numbers match, some are different. Let's calculate the quantization error:
 
 ```
 def quantization_error(original_tensor: torch.Tensor, deq_tensor: torch.Tensor) -> float:
@@ -365,13 +365,13 @@ PTQ involves quantizing a pre-trained model without further training. This metho
 
 Dynamic Quantization is a technique where quantization is applied at runtime, particularly to activations. The weights are typically quantized ahead of time, but the activations are quantized on-the-fly during inference. This method is particularly useful for models with varying input sizes or dynamic computational graphs, such as recurrent neural networks (RNNs) and transformer models. Dynamic Quantization offers a balance between model size reduction and computational efficiency, often with less impact on accuracy compared to static quantization methods.
 
-Let's take a look at how PTQ can be applied to a simple Neural Net.
+Let's take a look at how QAT can be applied to a simple Neural Net.
 First we import the needed libraries
 
 ```
 import torch
 import torch.nn as nn
-import torch.quantization
+import torch.optim as optim
 import torchvision
 import torchvision.transforms as transforms
 from torch.utils.data import DataLoader
@@ -438,9 +438,23 @@ def evaluate(model, data_loader, device):
 
 ```
 
-Let's also create a small function that retuns the model size
+Let's also create a train function and a small function that retuns the model size
 
 ```
+def train_model(model, train_loader, optimizer, criterion, device, epochs=10):
+    model.train()
+    for epoch in range(epochs):
+        running_loss = 0.0
+        for inputs, labels in train_loader:
+            inputs, labels = inputs.to(device), labels.to(device)
+            optimizer.zero_grad()
+            outputs = model(inputs)
+            loss = criterion(outputs, labels)
+            loss.backward()
+            optimizer.step()
+            running_loss += loss.item()
+        print(f'Epoch {epoch+1}, Loss: {running_loss/len(train_loader):.4f}')
+
 def get_model_size(model):
     torch.save(model.state_dict(), "temp.p")
     size = os.path.getsize("temp.p")
@@ -451,88 +465,109 @@ def get_model_size(model):
 Time to instantiate the model and loaders
 
 ```
-device = "cpu"
-model = MNISTModel()
-model.to(device)
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+original_model = MNISTModel().to(device)
 train_loader, test_loader = load_mnist()
 ```
 
-The line below is performing module fusion, which is an important optimization step in the quantization process.
+Time to train the model
 
 ```
-model = torch.quantization.fuse_modules(model, [['conv1', 'relu1'], ['conv2', 'relu2']])
+criterion = nn.CrossEntropyLoss()
+optimizer = optim.Adam(original_model.parameters(), lr=0.001)
+
+print("Training original model...")
+train_model(original_model, train_loader, optimizer, criterion, device)
+
+
+Training original model...
+Epoch 1, Loss: 0.1169
+Epoch 2, Loss: 0.0418
+Epoch 3, Loss: 0.0276
+Epoch 4, Loss: 0.0185
+Epoch 5, Loss: 0.0143
+Epoch 6, Loss: 0.0096
+Epoch 7, Loss: 0.0069
+Epoch 8, Loss: 0.0066
+Epoch 9, Loss: 0.0072
+Epoch 10, Loss: 0.0048
+
 ```
 
-Why doing model fusion?
+Now that the model is trained, we get the accuracy and then the size of the model
 
-Module fusion is an optimization technique that combines multiple operations into a single operation.
-This can improve both the performance and the numerical precision of the quantized model.
-In this case, we're fusing two pairs of layers:
+```
+original_accuracy = evaluate(original_model, test_loader, device)
+print(f"Original model accuracy: {original_accuracy:.4f}")
+original_size = get_model_size(original_model)
+print(f"Original model size: {original_size / 1e6:.2f} MB")
+```
 
-'conv1' (convolution) with 'relu1' (ReLU activation)
-'conv2' (convolution) with 'relu2' (ReLU activation)
+Original model accuracy: 0.9854
 
-The function creates new modules that combine the operations of the fused layers.
-The original separate modules are replaced with these fused modules in the model's structure.
+Original model size: 0.58 MB
 
-It's worth noting that not all combinations of layers can be fused. Common fusible patterns include Conv2d+BatchNorm2d+ReLU, Conv2d+BatchNorm2d, Conv2d+ReLU, and Linear+ReLU.
+Now let's try to create a quantized version of the model.
+```
+quantized_model = MNISTModel().to("cpu")
+```
 
 Now we set the backend and quantization configuration and prepare the model
 
 ```
 
-torch.backends.quantized.engine = 'qnnpack'
-model.qconfig = torch.quantization.get_default_qconfig('qnnpack')
-# Prepare the model for quantization
-model_prepared = torch.quantization.prepare(model)
+qat_model.qconfig = torch.quantization.get_default_qat_qconfig('qnnpack')
+qat_model = torch.quantization.prepare_qat(qat_model)
+
+```
+Time to train!
+
+```
+print("Training quantization-aware model...")
+train_model(qat_model, train_loader, optimizer, criterion, device, epochs=10)
+
+Training quantization-aware model...
+Epoch 1, Loss: 0.2119
+Epoch 2, Loss: 0.0446
+Epoch 3, Loss: 0.0318
+Epoch 4, Loss: 0.0216
+Epoch 5, Loss: 0.0165
+Epoch 6, Loss: 0.0130
+Epoch 7, Loss: 0.0098
+Epoch 8, Loss: 0.0082
+Epoch 9, Loss: 0.0069
+Epoch 10, Loss: 0.0061
 
 ```
 
-
-We calibrate the model now like so:
-
-```
-model_prepared.eval()
-with torch.no_grad():
-    for inputs, _ in train_loader:
-        model_prepared(inputs)
-
-```
-
-We now convert the model to quantized version
-
-```
-model_quantized = torch.quantization.convert(model_prepared)
-```
-
-Let's print out the sizes of both original and quantized model:
+We are almost at the same loss as before.
+Now that the model is trained, let's convert the model and do some evaluation
 
 
 ```
-print(f"Original model size: {get_model_size(model) / 1e6:.2f} MB")
-print(f"Quantized model size: {get_model_size(model_quantized) / 1e6:.2f} MB")
+qat_model.eval()
+qat_model = torch.quantization.convert(qat_model.to('cpu'))
+
+# Evaluate quantized model
+quantized_accuracy = evaluate(qat_model, test_loader, 'cpu')
+print(f"Quantized model accuracy: {quantized_accuracy:.4f}")
+quantized_size = get_model_size(qat_model)
+print(f"Quantized model size: {quantized_size / 1e6:.2f} MB")
+
+print(f"\nSize reduction: {(original_size - quantized_size) / original_size * 100:.2f}%")
+print(f"Accuracy difference: {(quantized_accuracy - original_accuracy) * 100:.2f} percentage points")
 ```
 
-Original model size: 0.58 MB
+Quantized model accuracy: 0.9836
+
 Quantized model size: 0.15 MB
 
-Let's evaluate both models on the 
+Size reduction: 74.25%
 
-```
-print("Evaluating original model...")
-original_accuracy = evaluate(model, test_loader, device)
-print(f"Original model accuracy: {original_accuracy:.4f}")
+Accuracy difference: 0.18 percentage points
 
-print("\nEvaluating quantized model...")
-quantized_accuracy = evaluate(model_quantized, test_loader, device)
-print(f"Quantized model accuracy: {quantized_accuracy:.4f}")
+We lost a bit in accuracy but the model shrank by quite a bit. 
+Now, in the real world, quantizing from scratch is hard, and do it with existing LLMs requires a deep understanding of pytorch internals. An easy way to do it is by using for example [Quanto](https://huggingface.co/blog/quanto-introduction) by HuggingFace. 
 
-```
 
-Evaluating original model...
-Original model accuracy: 0.0787
-
-Evaluating quantized model...
-Quantized model accuracy: 0.0788
-
-The accuracy difference is almost non-existent although this is just a very basic NN. 
+Quantization is a wide topic and this blog post covers only a tiny fraction of it. There are some recent advancements in quantization techniques specific to LLMs, such as SmoothQuant or GPTQ which I will conver in a next post.
