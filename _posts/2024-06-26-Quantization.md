@@ -536,4 +536,4 @@ We lost a bit in accuracy but the model shrank by quite a bit.
 Now, in the real world, quantizing from scratch is hard, and do it with existing LLMs requires a deep understanding of pytorch internals. An easy way to do it is by using for example [Quanto](https://huggingface.co/blog/quanto-introduction) by HuggingFace. 
 
 
-Quantization is a wide topic and this blog post covers only a tiny fraction of it. There are some recent advancements in quantization techniques specific to LLMs, such as SmoothQuant or GPTQ which I will conver in a next post.
+Quantization is a wide topic and this blog post covers only a tiny fraction of it. There are some recent advancements in quantization techniques specific to LLMs, such as SmoothQuant or GPTQ which I will cover in a next post.
