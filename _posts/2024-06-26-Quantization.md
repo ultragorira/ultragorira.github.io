@@ -77,21 +77,7 @@ Symmetric quantization maps floating-point values to signed integer values, typi
 ## Symmetric Quantization
 The symmetric quantization process can be expressed as follows:
 
-1. Calculate the scale factor $\alpha$
-
-   $$
-   \alpha = \frac{\max(|x|)}{2^{b-1} - 1}
-   $$
-
-   where $x$ is the input tensor, $b$ is the number of bits used for quantization, and $\max(|x|)$ is the maximum absolute value of $x$.
-
-2. Quantize the input tensor $x$ to produce the quantized tensor $x_q$:
-
-   $$
-   x_q = \operatorname{clamp}\left(\left\lfloor \frac{x}{\alpha} \right\rfloor, -2^{b-1}, 2^{b-1} - 1\right)
-   $$
-
-   where $\lfloor \cdot \rfloor$ is the floor function, and $\operatorname{clamp}(\cdot, a, b)$ is a function that clamps its input to the range $[a, b]$.
+![Symmetric](/images/Quantization/Symmetric.PNG)
 
 Now, let's see in code how this works.
 
@@ -245,29 +231,7 @@ q_error = quantization_error(original_tensor, deq_tensor)
 
 The asymmetric quantization process can be expressed as follows:
 
-1. Calculate the scale factor $\alpha$ and the zero point $z$:
-
-$$
-\begin{align}
-\alpha &= \frac{\max(x) - \min(x)}{2^b - 1} \\
-
-z &= -\left\lfloor \frac{\min(x)}{\alpha} \right\rfloor
-\end{align}
-$$
-
-where $x$ is the input tensor, $b$ is the number of bits used for quantization, $\max(x)$ is the maximum value of $x$, and $\min(x)$ is the minimum value of $x$.
-
-2. Quantize the input tensor $x$ to produce the quantized tensor $x\_q$:
-
-
-
-$$
-x\_q = \text{clamp}\left(\left\lfloor \frac{x}{\alpha} + z \right\rfloor, 0, 2^b - 1\right)
-$$
-
-
-
-where $\lfloor \cdot \rfloor$ is the floor function, and $\text{clamp}(\cdot, a, b)$ is a function that clamps its input to the range $[a, b]$.
+![Asymmetric](/images/Quantization/Asymmetric.PNG)
 
 As for the symmetric quantization, let's see how to implement it in code
 
