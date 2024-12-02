@@ -281,8 +281,9 @@ class YouTubeScraper:
 ```
 
 Couple of notes here.
-url: str = "https://www.youtube.com",
-scroll_count: int = 15 -> This is the number of times the Agent will scroll through the comment section of the video. The scraper will click on the first video that is searched in this case from YouTube.
+
+scroll_count: int = 15 -> This is the number of times the Agent will scroll through the comment section of the video. 
+The scraper will click on the first video that is searched in this case from YouTube.
 
 In the init there is "self.sentiment_analyzer = SentimentAnalyzer()" which is the Sentiment Analysis class we will be creating below so that we can analyze the data.
 
