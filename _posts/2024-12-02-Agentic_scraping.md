@@ -464,9 +464,8 @@ if __name__ == "__main__":
 Let's see it in action:
 
 
-https://github.com/user-attachments/assets/eba841c1-8223-4aae-891d-d3e6b33b8806
-
-
+<video src="https://github.com/user-attachments/assets/eba841c1-8223-4aae-891d-d3e6b33b8806" controls="controls" style="max-width: 730px;">
+</video>
 
 The results:
 
