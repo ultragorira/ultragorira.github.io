@@ -1,4 +1,4 @@
-# Agentic Scraping for your Lego Set
+# Scraping for your Lego Set with AgentQL
 
 ![BaradDur](/images/Agentic_Scraping/BaradDur.jpg)
 
@@ -6,12 +6,12 @@
 **Disclaimer: Your partner may not like this blog post.**
 
 In this blog post I will show you how you can convince your partner that the Lego set you are craving for is worth buying. Which isn't btw?
-We will explore agentic scraping with [AgentQL](https://www.agentql.com/) and then analyze the scraped data with a BERT tuned on tweets to get the sentiment. If the majority of the data is positive, we will buy the set. 
+We will explore [AgentQL](https://www.agentql.com/) which is an AI-powered query language for scraping web sites and automating workflows and uses natural language queries to pinpoint data and elements on any web page. We will then analyze the scraped data with a BERT tuned on tweets to get the sentiment. If the majority of the data is positive, we will buy the set. 
 
 
 ### Scraping the data
 
-If you have done some scraping, you know very well that it can be pretty frustrating and annoying to do as every website is different and there is no just one way to scrape any website. However, what if you could leverage Agents and LLM to do the scraping in an easier way. One tool I found for this exercise is AgentQL. The usage is pretty straightforward, and it has a good free-tier for you to try it out. The only thing you need is to create an API key for you to start playing. 
+If you have done some scraping, you know very well that it can be pretty frustrating and annoying to do as every website is different and there is no just one way to scrape any website. However, what if you could leverage natural language and LLM to do the scraping in an easier way. One tool I found for this exercise is AgentQL. The usage is pretty straightforward, and it has a good free-tier for you to try it out. The only thing you need is to create an API key for you to start playing. 
 
 You can create the API key from [here](https://dev.agentql.com/sign-in?redirect_url=https%3A%2F%2Fdev.agentql.com%2F).
 
